@@ -1,0 +1,64 @@
+#/*
+# * File:       1MB_flash.lcf
+# * Purpose:    Linker file for Kinetis devices with 
+# * 		    1MB of flash in a pflash only configuration
+# * 		    (no FlexMem)
+# *
+# * Notes:      Project running in internal Flash
+# *
+# */
+
+MEMORY
+{
+    rom     (RX) : ORIGIN = 0x00000000,  LENGTH = 0x00100000
+    ram     (RW) : ORIGIN = 0x1FFF0410,  LENGTH = 0x0001FBF0
+}
+
+SECTIONS 
+{
+    __VECTOR_RAM       = 0x1FFF0000;
+    
+    .text :
+    {
+		. 				= ALIGN(0x10);
+		__VECTOR_TABLE = .;
+       __exception_table_start__ = .;
+
+		*(.vectortable)
+		
+       __exception_table_end__ = .;
+        *(.text)
+        *(.rodata)
+         .              = ALIGN(0x10);
+        __DATA_ROM     = .;
+    } > rom
+
+    .data_bss : AT(__DATA_ROM)
+    {
+        __DATA_RAM     = .;
+        *(.data)
+        *(.sdata)
+		*(.relocate_code)
+		*(.relocate_const)
+		*(.relocate_data)
+		*(.test)
+        __DATA_END     = .;
+        .               = ALIGN(0x10);
+        __START_BSS    = .;
+        *(.sbss)
+        *(SCOMMON)
+        *(.bss)
+        *(COMMON)
+        __END_BSS      = .;
+        .               = ALIGN(0x10);
+        __HEAP_START   = .;
+		__heap_addr			= .;
+		__heap_size 		= (4 * 1024);
+		.					= . + __heap_size;
+        __HEAP_END     = .;
+        __SP_END       = .;
+		.					= . + (4 * 1024);
+	  __SP_INIT	     = .;
+		__BOOT_STACK_ADDRESS = .;
+    } > ram
+}

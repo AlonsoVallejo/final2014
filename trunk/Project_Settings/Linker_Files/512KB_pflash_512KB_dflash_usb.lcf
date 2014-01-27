@@ -1,0 +1,82 @@
+#/*
+# * File:       128KB_pflash_128KB_dflash.lcf
+# * Purpose:    Linker file for Kinetis devices with FlexMem
+# *		    that include 128KB of Pflash and 128KB of Dflash
+# *
+# * Notes:      Project running in internal Flash
+# *
+# */
+
+MEMORY
+{
+    rom     (RX) : ORIGIN = 0x00000000,  LENGTH = 0x00080000
+    m_bdt	(RW) : ORIGIN = 0x20000000,  LENGTH = 0x200
+    m_bdt1	(RW) : ORIGIN = 0x20000200,  LENGTH = 0x080
+    ram     (RW) : ORIGIN = 0x1FFF0410,  LENGTH = 0x00007BF0
+}
+
+KEEP_SECTION {.usb_bdt}
+KEEP_SECTION {.usb_bdt1}
+
+SECTIONS 
+{
+    __VECTOR_RAM       = 0x1FFF0000;
+    
+    .text :
+    {
+		. 				= ALIGN(0x10);
+		__VECTOR_TABLE = .;
+       __exception_table_start__ = .;
+
+		*(.vectortable)
+		
+       __exception_table_end__ = .;
+        *(.text)
+        *(.rodata)
+         .              = ALIGN(0x10);
+        __DATA_ROM     = .;
+    } > rom
+    
+    .usb_bdt_sec: 
+    {
+	___BDT = .;
+	* (.usb_bdt)
+	. = ALIGN(0x4);
+	} > m_bdt
+	
+	.usb_bdt1_sec: 
+    {
+	___BDT1 = .;
+	* (.usb_bdt1)
+	. = ALIGN(0x4);
+	} > m_bdt1
+
+    .data_bss : AT(__DATA_ROM)
+    { 
+        __DATA_RAM     = .;
+        *(.data)
+        *(.sdata)
+		*(.relocate_code)
+		*(.relocate_const)
+		*(.relocate_data)
+		*(.test)
+        __DATA_END     = .;
+        .               = ALIGN(0x10);
+        __START_BSS    = .;
+        *(.sbss)
+        *(SCOMMON)
+        *(.bss)
+        *(COMMON)
+        __END_BSS      = .;
+        .               = ALIGN(0x10);
+        __HEAP_START   = .;
+		__heap_addr			= .;
+		__heap_size 		= 0x00004000;
+		.					= . + __heap_size;
+        __HEAP_END     = .;
+        __SP_END       = .;
+		.					= . + (1 * 1024);
+	  __SP_INIT	     = .;
+        __BOOT_STACK_ADDRESS = .;
+    } > ram
+}
