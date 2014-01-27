@@ -7,7 +7,7 @@
 #include "my_uart.h"
 #include "common.h"
 #include "uart.h"
-
+//sursele mele facute de mine
 //PORT_PCR_MUX(3) enables UART
 void init_uart(int uart_channel) 
 {
