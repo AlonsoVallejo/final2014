@@ -1,0 +1,91 @@
+#/*
+# * File:		128MB_ddr.lcf
+# * Purpose:	Linker file for Kinetis devices with
+# *				DDR controller 
+# *
+# * Notes:		code executing from DDR
+# *
+# */
+
+MEMORY
+{
+	intvec	(RW) : ORIGIN = 0x1FFF0000,  LENGTH = 0x410
+    text    (RX) : ORIGIN = 0x08000000,  LENGTH = 0x08000000
+    data    (RW) : ORIGIN = AFTER(text), LENGTH = 0
+    bss     (RW) : ORIGIN = AFTER(data), LENGTH = 0
+    
+    # define a space in the 0x80000000 range to use for storing 
+    # the graphical LCD buffer
+    image	(RW) : ORIGIN = 0x80400000,  LENGTH = 0
+}
+
+SECTIONS
+{
+     __VECTOR_RAM		= 0x1FFF0000;
+     
+    .intvec :
+    {
+		. 				= ALIGN(0x10);
+		__VECTOR_TABLE = .;
+       __exception_table_start__ = .;
+
+		*(.vectortable)
+		
+       __exception_table_end__ = .;
+	} > intvec    
+
+ 
+	.text :
+	{
+		. 				= ALIGN(0x10);
+		
+		*(.text)
+		. 				= ALIGN(0x10);
+	} > text
+
+	.data :
+	{
+		. 				= ALIGN(0x10);
+		__DATA_ROM 	= .;
+		__DATA_RAM 	= .;
+		*(.rodata)	
+		*(.sdata)
+		*(.data)
+		*(.relocate_code)
+		*(.relocate_const)
+		*(.relocate_data)
+		. 				= ALIGN(0x10);
+		__DATA_END 	= .;
+	} > data
+	
+	.bss :
+	{
+		. 					= ALIGN(0x10);
+		__START_BSS 		= .;
+		*(.sbss)
+		*(SCOMMON)
+		*(.bss)
+		*(COMMON)
+		__END_BSS 			= .;
+		. 					= ALIGN(0x10);
+		__HEAP_START		= .;
+		__heap_addr			= .;
+		__heap_size 		= 0x0000800;
+		.					= . + __heap_size;
+		__HEAP_END			= .;
+		__SP_END			= .;
+		.					= . + 0x400;
+            __SP_INIT	     = .;
+		__BOOT_STACK_ADDRESS = .;
+	} > bss
+	
+	.image :
+	{
+		. 					= ALIGN(0x10);
+		__IMAGE_START 		= .;
+		*(.image)
+		
+	} > image
+
+	
+}
