@@ -7,6 +7,7 @@
 
 #include "derivative.h"
 #include "pwm.h"
+#include "debug.h"
 
 
 void SET_SERVO_LEFT(int x) {
