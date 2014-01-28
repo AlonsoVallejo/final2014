@@ -19,15 +19,15 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildArguments</key>
-					<value>-j6</value>
+					<value>-j8</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildCommand</key>
-					<value>${GNU_Make_Install_Dir}mingw32-make</value>
+					<value>${system:ECLIPSE_HOME}/../gnu/bin/mingw32-make</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildLocation</key>
-					<value>${ProjDirPath}/MK60FN1M0_INTERNAL_RAM</value>
+					<value>${ProjDirPath}/MK60FN1M0_INTERNAL_FLASH</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.contents</key>
