@@ -1,7 +1,8 @@
 #include "cam.h"
 #include "common.h"
 #include "utils.h"
-   
+#include "debug.h" 
+
 static int cam_state;
 static int clk_count;
 static int frame_count = 0;
@@ -16,7 +17,7 @@ void got_frame_uart() {
 	int i;
 	frame_count++;
 	
-	if(frame_count == 100){  // send every 100th frame on uart
+	if(frame_count == 100 && DEBUG_CAM){  // send every 100th frame on uart if other debug types not active
 		// begin frame sequence: [255 0 255 0]
 		out_char(255);		 
 		out_char(0);
