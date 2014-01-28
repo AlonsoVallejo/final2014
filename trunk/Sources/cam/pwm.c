@@ -2,29 +2,17 @@
  * pwm.c
  *
  *  Created on: 14.01.2014
- *      Author: Ciob
+ *      Author: Iulian
  */
 
 #include "derivative.h"
 #include "pwm.h"
-#include "motors.h"
 
-#define SET_ENL_HIGH() GPIOA_PSOR = GPIO_PIN(4)
-#define SET_ENR_HIGH() GPIOB_PSOR = GPIO_PIN(3)
-
-#define SET_ENL_LOW() GPIOA_PCOR = GPIO_PIN(4)
-#define SET_ENR_LOW() GPIOB_PCOR = GPIO_PIN(3)
-
-#define SET_IN2L_LOW() GPIOA_PCOR = GPIO_PIN(5)
-#define SET_IN2R_LOW() GPIOB_PCOR = GPIO_PIN(23)
-
-#define SET_IN2L_HIGH() GPIOA_PSOR = GPIO_PIN(5)
-#define SET_IN2R_HIGH() GPIOB_PSOR = GPIO_PIN(23)
 
 void SET_SERVO_LEFT(int x) {
 
 	x = SERVO_CENTER - (SERVO_CENTER - SERVO_MIN_PWM) * x / MAX_SERVO;
-	if (x < 1120) {
+	if (x < 1120) {// sa nu fortez prea tare stanga
 		x = 1120;
 	}
 	SERVO_MOTOR_VALUE = x;
@@ -32,7 +20,7 @@ void SET_SERVO_LEFT(int x) {
 
 void SET_SERVO_RIGHT(int x) {
 	x = SERVO_CENTER + (SERVO_MAX_PWM - SERVO_CENTER) * x / MAX_SERVO;
-	if (x > 2240) {
+	if (x > 2240) {//sa nu fortez prea tare dreapta
 		x = 2240;
 	}
 	SERVO_MOTOR_VALUE = x;
@@ -43,7 +31,6 @@ void init_pwm		(void)
 	init_motors();
 	init_servo();
 	init_motor_signals();
-	//init_values();
 }
 
 void init_motors	(void)
@@ -66,7 +53,7 @@ void init_motors	(void)
 	FTM1_MODE = FTM_MODE_WPDIS_MASK;
 	
 	//enable all FTM specific registers
-	FTM1_MODE |= FTM_MODE_FTMEN_MASK;
+	FTM1_MODE &= ~(FTM_MODE_FTMEN_MASK);
 	
 	//disable FTM1 module - pentru a fi siguri ca scriem registrii faca nici o restrictie
 	FTM1_SC = 0;
@@ -91,12 +78,11 @@ void init_motors	(void)
 	FTM1_C0SC = FTM_CnSC_ELSB_MASK | FTM_CnSC_MSB_MASK;
 	
 	//pentru a seta care sa fie factorul de umplere pentru fiecare canal, vom seta registrul CnV
-	FTM1_C0V = MOTOR_PWM_MOD / 5;//50%
-	FTM1_C1V = MOTOR_PWM_MOD / 2;//50%
+	FTM1_C0V = 0;
+	FTM1_C1V = 0;
 	
 	//select the system clock for FTM1 module
 	FTM1_SC = FTM_SC_CLKS(1);
-	
 }
 
 void init_servo		(void)
@@ -114,7 +100,7 @@ void init_servo		(void)
 	  
 	FTM0_MODE |= FTM_MODE_WPDIS_MASK;
 	
-	FTM0_MODE |= FTM_MODE_FTMEN_MASK;
+	FTM0_MODE &= ~(FTM_MODE_FTMEN_MASK);
 	
 	FTM0_SC = 0;
 	
@@ -126,7 +112,7 @@ void init_servo		(void)
 	 	
 	FTM0_QDCTRL = 0;
 	
-	FTM0_C1V = SERVO_PWM_MOD / 9;
+	FTM0_C1V = SERVO_CENTER;
 
 	FTM0_SC |= FTM_SC_CLKS(1)|FTM_SC_PS(5);
 }
@@ -149,6 +135,6 @@ void init_motor_signals	(void)
 	// seteaza toate semnalele cu valoare initiala 0
 	LEFT_MOTOR_VALUE = 0x00;
 	RIGHT_MOTOR_VALUE= 0x00;
-	SERVO_MOTOR_VALUE= 0x00;
+	SERVO_MOTOR_VALUE= SERVO_CENTER;
 	
 }
