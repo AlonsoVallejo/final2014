@@ -45,9 +45,10 @@
 							</tool>
 							<tool commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} -c ${INPUTS}" id="com.freescale.arm.cdt.toolchain.compiler.2090530558" name="ARM Compiler" superClass="com.freescale.arm.cdt.toolchain.compiler">
 								<option id="com.freescale.arm.cdt.toolchain.armCpp.input.userIncludes.1938078236" name="Include User Search Paths (-i)" superClass="com.freescale.arm.cdt.toolchain.armCpp.input.userIncludes" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/Sources/aux_code&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/Sources/cam&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/Project_Headers&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${MCUToolsBaseDir}/ARM_EABI_Support/ewl/EWL_C/include&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Sources/aux_code}&quot;"/>
 								</option>
 								<option id="com.freescale.arm.cdt.toolchain.armCpp.language.cpp.exceptions.544342138" name="Enable Exceptions" superClass="com.freescale.arm.cdt.toolchain.armCpp.language.cpp.exceptions" value="false" valueType="boolean"/>
 								<option id="com.freescale.arm.cdt.toolchain.armCpp.warn.warningsFlag.hidden.adjusted.1458108109.adjusted.379152153" name="(hidden) warnings flag" superClass="com.freescale.arm.cdt.toolchain.armCpp.warn.warningsFlag.hidden.adjusted.1458108109" value="false" valueType="boolean"/>
@@ -63,6 +64,8 @@
 								<option id="com.freescale.arm.cdt.toolchain.armCpp.warn.enableWarnings.hidden.adjusted.924015565.adjusted.991548396" name="(hidden) toggle warnings flag" superClass="com.freescale.arm.cdt.toolchain.armCpp.warn.enableWarnings.hidden.adjusted.924015565" value="com.freescale.arm.cdt.toolchain.enableWarnings.custom.hidden" valueType="enumerated"/>
 								<option id="com.freescale.arm.cdt.toolchain.armCpp.warn.enableWarnings.hidden.adjusted.924015565.adjusted.999002566" name="(hidden) toggle warnings flag" superClass="com.freescale.arm.cdt.toolchain.armCpp.warn.enableWarnings.hidden.adjusted.924015565" value="com.freescale.arm.cdt.toolchain.enableWarnings.custom.hidden" valueType="enumerated"/>
 								<option id="com.freescale.arm.cdt.toolchain.armCpp.otherFlags.1984734686" name="Other Flags" superClass="com.freescale.arm.cdt.toolchain.armCpp.otherFlags" value="-char unsigned" valueType="string"/>
+								<option id="com.freescale.arm.cdt.toolchain.armCpp.warn.warningsFlag.hidden.adjusted.1985218033.adjusted.471081739" name="(hidden) warnings flag" superClass="com.freescale.arm.cdt.toolchain.armCpp.warn.warningsFlag.hidden.adjusted.1985218033" value="false" valueType="boolean"/>
+								<option id="com.freescale.arm.cdt.toolchain.armCpp.warn.enableWarnings.hidden.adjusted.882547561.adjusted.1119382125" name="(hidden) toggle warnings flag" superClass="com.freescale.arm.cdt.toolchain.armCpp.warn.enableWarnings.hidden.adjusted.882547561" value="com.freescale.arm.cdt.toolchain.enableWarnings.custom.hidden" valueType="enumerated"/>
 								<inputType id="com.freescale.arm.cdt.toolchain.armCpp.cSource.653381800" name="ARM C/C++ Compiler" superClass="com.freescale.arm.cdt.toolchain.armCpp.cSource"/>
 							</tool>
 							<tool id="com.freescale.arm.cdt.toolchain.assembler.1374894435" name="ARM Assembler" superClass="com.freescale.arm.cdt.toolchain.assembler">
