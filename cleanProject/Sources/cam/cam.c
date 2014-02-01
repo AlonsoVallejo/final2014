@@ -5,13 +5,13 @@
 static int cam_state;
 static int clk_count;
 static int frame_count = 0;
-uint8 cam_buff[128];
+uint8 camera_uart_buff[128];
 
 //pit0 - si and first clk
 //pit1 - clk
 //check documentation for further information
 
-void got_frame() {
+void send_frame() {
 	int i;
 	frame_count++;
 	if(frame_count == 100){  // send every 100th frame on uart
@@ -22,7 +22,7 @@ void got_frame() {
 		out_char(0);
 		//
 		for(i=0;i<NUM_CLOCKS/2;i+=1) {			
-			out_char(cam_buff[i]);
+			out_char(camera_uart_buff[i]);
 		}
 		frame_count = 0;
 	}
@@ -34,7 +34,7 @@ void adc1_isr() //conversion complete interrupt on ADC1
 	ADC1_SC1A &= ~ADC_SC1_AIEN_MASK; // disable adc interrupts for now
 	tmp = ADC1_RA;					 // read conversion result
 	if (clk_count<NUM_CLOCKS) 
-		cam_buff[clk_count/2] = (uint8)tmp; //put byte into buffer
+		camera_uart_buff[clk_count/2] = (uint8)tmp; //put byte into buffer
 	ADC1_SC1A |= ADC_SC1_AIEN_MASK;  // re-enable interrupts
 }
 
@@ -46,7 +46,7 @@ void pit0_isr(void){
 	switch (cam_state) {
 	case 0: 
 		GPIOC_PCOR = GPIO_PIN(CLK_PIN); // clear CLK 
-		got_frame();                    // process the last frame - send it
+		send_frame();                    // process the last frame - send it
 		GPIOC_PSOR = GPIO_PIN(SI_PIN);  // set SI
 		PIT_LDVAL0 = QUARTER_CLK_TIMER; // set pit0 to a quarter of a CLK period  
 		clk_count = 1;					// init CLK counter 

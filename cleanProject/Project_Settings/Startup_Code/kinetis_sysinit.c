@@ -49,6 +49,10 @@ extern "C" {
 #endif
 extern uint32_t __SP_INIT[];
 extern void __thumb_startup( void );
+extern void adc1_isr(void);
+extern void pit0_isr(void);
+extern void pit1_isr(void);
+extern void update_speed(void);
 #ifdef __cplusplus
 }
 #endif
@@ -135,7 +139,7 @@ static __declspec(vectortable) tVectorTable __vect_table = { /* Interrupt vector
    (tIsrFunc)UNASSIGNED_ISR,                               /* 71 (0x0000011C) (prior: -) */
    (tIsrFunc)UNASSIGNED_ISR,                               /* 72 (0x00000120) (prior: -) */
    (tIsrFunc)UNASSIGNED_ISR,                               /* 73 (0x00000124) (prior: -) */
-   (tIsrFunc)UNASSIGNED_ISR,                               /* 74 (0x00000128) (prior: -) */
+   (tIsrFunc)adc1_isr,                               /* 74 (0x00000128) (prior: -) */
    (tIsrFunc)UNASSIGNED_ISR,                               /* 75 (0x0000012C) (prior: -) */
    (tIsrFunc)UNASSIGNED_ISR,                               /* 76 (0x00000130) (prior: -) */
    (tIsrFunc)UNASSIGNED_ISR,                               /* 77 (0x00000134) (prior: -) */
@@ -145,10 +149,10 @@ static __declspec(vectortable) tVectorTable __vect_table = { /* Interrupt vector
    (tIsrFunc)UNASSIGNED_ISR,                               /* 81 (0x00000144) (prior: -) */
    (tIsrFunc)UNASSIGNED_ISR,                               /* 82 (0x00000148) (prior: -) */
    (tIsrFunc)UNASSIGNED_ISR,                               /* 83 (0x0000014C) (prior: -) */
-   (tIsrFunc)UNASSIGNED_ISR,                               /* 84 (0x00000150) (prior: -) */
-   (tIsrFunc)UNASSIGNED_ISR,                               /* 85 (0x00000154) (prior: -) */
+   (tIsrFunc)pit0_isr,                               		/* 84 (0x00000150) (prior: -) */
+   (tIsrFunc)pit1_isr,                               		/* 85 (0x00000154) (prior: -) */
    (tIsrFunc)UNASSIGNED_ISR,                               /* 86 (0x00000158) (prior: -) */
-   (tIsrFunc)UNASSIGNED_ISR,                               /* 87 (0x0000015C) (prior: -) */
+   (tIsrFunc)update_speed,                               /* 87 (0x0000015C) (prior: -) */
    (tIsrFunc)UNASSIGNED_ISR,                               /* 88 (0x00000160) (prior: -) */
    (tIsrFunc)UNASSIGNED_ISR,                               /* 89 (0x00000164) (prior: -) */
    (tIsrFunc)UNASSIGNED_ISR,                               /* 90 (0x00000168) (prior: -) */
