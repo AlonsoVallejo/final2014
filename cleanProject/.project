@@ -27,7 +27,7 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildLocation</key>
-					<value>${ProjDirPath}/MK60FN1M0_INTERNAL_RAM</value>
+					<value>${ProjDirPath}/MK60FN1M0_INTERNAL_FLASH</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.contents</key>

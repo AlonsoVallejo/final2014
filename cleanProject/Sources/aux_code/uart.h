@@ -9,7 +9,8 @@
 #define __UART_H__
 
 /********************************************************************/
-#define TERM_PORT UART5_BASE_PTR
+//switched channel to UART0 pentru XBEE - modificare facut de Cristi si Iuli :)
+#define TERM_PORT UART0_BASE_PTR
 #define DEFAULT_BAUD 115200
 #define _50MHZ_CLOCK 50000
 

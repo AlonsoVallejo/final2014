@@ -5,9 +5,9 @@
 
 void init_uart()
 {
-	SIM_SCGC5 |= SIM_SCGC5_PORTE_MASK; // enable clock for portE
-	PORTE_PCR8 = PORT_PCR_MUX(3); //set pin 8 of portE to work as UART
-	PORTE_PCR9 = PORT_PCR_MUX(3); //set pin 9 of portE to work as UART
+	SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;
+	PORTB_PCR16 = PORT_PCR_MUX(3);
+	PORTB_PCR17 = PORT_PCR_MUX(3);
 	uart_init(TERM_PORT,_50MHZ_CLOCK,DEFAULT_BAUD); //UART output: usb debug port
 													//BAUD: 115200
 													//OSC: 50 MHZ
