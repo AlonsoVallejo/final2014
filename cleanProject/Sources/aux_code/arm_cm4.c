@@ -76,37 +76,63 @@ void write_vtor (int vtor)
  */
 
 void enable_irq (int irq)
+
 {
+
     int div;
-    
-    /* Make sure that the IRQ is an allowable number. Right now up to 105 is 
+
+    register long int Ibit;
+
+    /* Make sure that the IRQ is an allowable number. Right now up to 91 is
+
      * used.
+
      */
-    if (irq > 105)
+
+    if (irq > 91)
+
         printf("\nERR! Invalid IRQ value passed to enable irq function!\n");
-    
+
+ 
+
+ 
+
     /* Determine which of the NVICISERs corresponds to the irq */
-    div = irq/32;
-    
+
+    div = irq & (3*32);
+
+    Ibit = 1 << (irq & (32-1));
+
     switch (div)
+
     {
-    	case 0x0:
-              NVICICPR0 |= 1 << (irq%32);
-              NVICISER0 |= 1 << (irq%32);
+
+    case (0*32):
+
+              NVICICPR0 = Ibit;
+
+              NVICISER0 = Ibit;
+
               break;
-    	case 0x1:
-              NVICICPR1 |= 1 << (irq%32);
-              NVICISER1 |= 1 << (irq%32);
+
+    case (1*32):
+
+              NVICICPR1 = Ibit;
+
+              NVICISER1 = Ibit;
+
               break;
-    	case 0x2:
-              NVICICPR2 |= 1 << (irq%32);
-              NVICISER2 |= 1 << (irq%32);
+
+    case (2*32):
+
+              NVICICPR2 = Ibit;
+
+              NVICISER2 = Ibit;
+
               break;
-		case 0x3:
-			  NVICICPR3 |= 1 << (irq%32);
-			  NVICISER3 |= 1 << (irq%32);
-			  break;
-    }              
+
+    }
+
 }
 /***********************************************************************/
 /*
@@ -121,30 +147,57 @@ void enable_irq (int irq)
  */
 
 void disable_irq (int irq)
+
 {
+
     int div;
-    
-    /* Make sure that the IRQ is an allowable number. Right now up to 105 is 
+
+    register long int Ibit;
+
+    /* Make sure that the IRQ is an allowable number. Right now up to 91 is
+
      * used.
+
      */
-    if (irq > 105)
+
+    if (irq > 91)
+
         printf("\nERR! Invalid IRQ value passed to disable irq function!\n");
-    
+
+ 
+
+ 
+
     /* Determine which of the NVICICERs corresponds to the irq */
-    div = irq/32;
-    
+
+    div = irq & (3*32);
+
+    Ibit = 1 << (irq & (32-1));
+
     switch (div)
+
     {
-    	case 0x0:
-              NVICICER0 |= 1 << (irq%32);
+
+    case (0*32):
+
+              NVICICER0 = Ibit;
+
               break;
-    	case 0x1:
-              NVICICER1 |= 1 << (irq%32);
+
+    case (1*32):
+
+              NVICICER1 = Ibit;
+
               break;
-    	case 0x2:
-              NVICICER2 |= 1 << (irq%32);
+
+    case (2*32):
+
+              NVICICER2 = Ibit;
+
               break;
-    }              
+
+    }
+
 }
 /***********************************************************************/
 /*
