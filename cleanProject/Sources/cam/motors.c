@@ -136,29 +136,3 @@ void init_chspeed() {
 	crnt_speed = 0;
 	reference = 0;
 }
-
-
-
-/*
-void 	start_motors	(int percent)
-{
-	LEFT_MOTOR_VALUE = MOTOR_PWM_MOD / 8;//factorul de umplere de 50%
-	RIGHT_MOTOR_VALUE= MOTOR_PWM_MOD / 8;//factorul de umplere de 20%
-}
-
-void 	turn			(int angle)
-{
-	//transforma cumva unghiul in factor de umplere!!!
-	SERVO_MOTOR_VALUE= SERVO_PWM_MOD - 10;
-}
-
-void 	turn_left		(int angle)
-{
-	turn (-angle);
-}
-
-void 	turn_right		(int angle)
-{
-	turn (angle);
-}
-*/

@@ -82,7 +82,7 @@ void init_adc() {
 	
 	//set adc conversion complete isr
 	disable_irq(58);
-	__vector_table[74] = (uint32)&adc1_isr;
+	//__vector_table[74] = (uint32)&adc1_isr;
 	enable_irq(58);	
 	
 	ADC1_CFG1 = 0; // 8 bit conversion

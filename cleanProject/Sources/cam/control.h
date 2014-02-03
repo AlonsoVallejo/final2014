@@ -108,7 +108,6 @@ void motors_adc0_isr();
 extern frame_info crnt_frame; // needed? in main.c
 extern frame_data framebuff; // needed in cam.c
 extern unsigned int time_5ms; // needed mostly everywhere
-extern unsigned char *cam_buff; // point to data in framebuff; needed in cam.c
 extern unsigned int last_error_time; // needed in main.c 
 extern unsigned int last_start_time; // needed in main.c
 extern unsigned int last_line_time;  // timpul ultimului start (0 daca a fost procesat)
@@ -119,7 +118,6 @@ extern int logging; 			// logging activ ?
 frame_info crnt_frame;
 frame_data framebuff;
 unsigned int time_5ms = 1;
-unsigned char *cam_buff;
 unsigned int last_error_time = 0;
 unsigned int last_start_time = 0;
 unsigned int last_line_time = 0;

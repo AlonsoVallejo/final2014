@@ -12,6 +12,10 @@
 #include "pwm.h"
 #include "motors.h"
 
+extern unsigned char *cam_prel;
+extern unsigned char *cam_prel;
+extern unsigned char camera1_buff[128];
+extern unsigned char camera2_buff[128];
 extern short int forward; //and 0 brake
 extern int line_error_val;
 #define CRNT_FRAME RBUFF_SIZE-1
@@ -28,7 +32,6 @@ extern short int reference;
 #define BRK_FALLING_TIME 		ref/4
 #define BRK_FIRST_VALUE_TIME 	0			
 #define BRK_RISING_TIME			ref/4
-
 
 #define Kp_coef_A 3 
 #define Kp_coef_B 2
@@ -95,46 +98,17 @@ extern int servo;
 
 void set_steering_position();
 
-void gen_PWM_L(int ref) {
-	ref_L = ref - W_left;
-	PWML = ref_L * 4.014 - 4 * ref_L_minus_1 + PWML;
-	ref_L_minus_1 = ref_L;
 
-}
-
-void gen_PWM_R(int ref) {
-	ref_R = ref - W_right;
-	PWMR = ref_R * 4.014 - 4 * ref_R_minus_1 + PWMR;
-	ref_R_minus_1 = ref_R;
-
-}
-
-void gen_PWM(int pwm) {
-	gen_PWM_L(pwm);
-	gen_PWM_R(pwm);
-}
-
-void gen_W_k_left() {
-	W_left = 0.9984 * k_left + (0.003 * adc_read_left_signed);
-	k_left = W_left;
-}
-
-void gen_W_k_right() {
-	W_right = 0.9984 * k_right + (0.003 * adc_read_right_signed);
-	k_right = W_right;
-}
-
-void gen_Ws() {
-	gen_W_k_left();
-	gen_W_k_right();
-}
+int iuli=0;
 
 void got_frame() {
+	
 	int i, edgei = 0;
 	char c = 255;
 	// first update time
 	time_5ms++;
 	time_50ms++;
+	iuli++;
 	time_2s_aux++;
 	if (time_2s_aux == 200) {
 		time_2s_aux = 0;
@@ -142,35 +116,17 @@ void got_frame() {
 		if (sw == 4) {
 			sw = 0;
 		}
+	}
 
-	}
-	
 	count_pit0++;
-	if (time_50ms == 200) {
-		c = 255;
-		out_char(c);
-		US_TO_CLOCKS(400);
-		c = 0;
-		out_char(c);
-		US_TO_CLOCKS(400);
-		c = 255;
-		out_char(c);
-		US_TO_CLOCKS(400);
-		c = 0;
-		out_char(c);
-		US_TO_CLOCKS(400);
-	}
+
 	
-	set_steering_position();
-	
+	our_set_steering_position();
 	//detect edges in frame using a threshold of the derivative
 	for (i = MARGIN + OFFSET; i < 128 - MARGIN; i += 1) {
-		dc = cam_buff[i] - cam_buff[i - OFFSET];
-		//may optimise ringbuff with shift
-		if (time_50ms == 200) {
-			out_char(cam_buff[i]);
-			US_TO_CLOCKS(400);
-		}
+		dc = cam_prel[i] - cam_prel[i - OFFSET];
+		//if(iuli==400)
+			//io_printf("dc is %d\n",dc);
 		sign = 1;
 		if (dc < 0) {
 			dc = -dc;
@@ -186,6 +142,7 @@ void got_frame() {
 		}
 
 	}
+
 	if (time_50ms == 20) {
 		time_50ms = 0;
 
@@ -200,6 +157,7 @@ void got_frame() {
 			linepos = (edge_pos[i] + edge_pos[i - 1]) / 2 - 64
 					- OFFSET_CORRECTION;
 			linewidth = edge_pos[i] - edge_pos[i - 1];
+			
 			if (linewidth > LINE_MIN_WIDTH && linewidth < LINE_MAX_WIDTH) {
 				if (crnt_frame.type == FRAME_NONE) // check if it is the first line of the desired width 
 					crnt_frame.type = FRAME_LINE;
@@ -222,6 +180,7 @@ void got_frame() {
 
 	switch (crnt_frame.type) {
 	case FRAME_NONE:
+		break;
 	case FRAME_ERROR:
 		last_error_time = time_5ms;
 		break;
@@ -255,18 +214,20 @@ void got_frame() {
 	}
 
 	entry.right = fb.right;
+	/*
 
-#ifdef LOG_FRAME_DATA
-	if (LOG_NOT_FULL() && logging) {
-		GPIOC_PCOR |= GPIO_PIN(9);
+	 #ifdef LOG_FRAME_DATA
+	 if (LOG_NOT_FULL() && logging) {
+	 GPIOC_PCOR |= GPIO_PIN(9);
 
-		add_log_entry(&entry);
+	 add_log_entry(&entry);
 
-	}
-else		GPIOC_PSOR |= GPIO_PIN(9);
-#endif
+	 }
+	 else		GPIOC_PSOR |= GPIO_PIN(9);
+	 #endif
+	 */
 
-	}
+}
 
 // part copied from newmotors.h
 void motors_adc0_isr() {
@@ -321,6 +282,20 @@ double PID(int servo) {
 	return P(servo) + I() + D();
 }
 
+int our_set_steering_position()
+{
+	line_error_val = crnt_frame.linepos;
+		if (crnt_frame.linepos < 0/* && CURVE_THRESHOLD < line_error_val*/) {
+			servo = crnt_frame.linepos;
+			SET_SERVO_LEFT(-servo);
+		} else if (crnt_frame.linepos > 0/* && CURVE_THRESHOLD < line_error_val*/) {
+			servo = crnt_frame.linepos;
+			SET_SERVO_RIGHT(servo);
+		}
+		prev_error = line_error_val;
+		return 0;
+}
+
 void set_steering_position() {
 	line_error_val = crnt_frame.linepos;
 	if (crnt_frame.linepos < 0/* && CURVE_THRESHOLD < line_error_val*/) {
@@ -360,20 +335,20 @@ void do_brake_to_0() {
 	int state = 0;
 	int ref = get_reference();
 	count_pit0 = 0;
-	
+
 	//printf("brake to 0\n");
 	while (state < 2) {
-		set_steering_position();
+		our_set_steering_position();
 		if (count_pit0 > 25 && state == 0) {
 			set_direction(0);
 			minus = 1;
-			start_chspeed(MS_TO_CLOCKS(BRK_FALLING_TIME), get_reference()/2);
+			start_chspeed(MS_TO_CLOCKS(BRK_FALLING_TIME), get_reference() / 2);
 			count_pit0 = 0;
-		//	printf("going to -65\n");
+			//	printf("going to -65\n");
 			state = 1;
 		} else if (count_pit0 > BRK_FIRST_VALUE_TIME / 5 && state == 1) {
 			start_chspeed(MS_TO_CLOCKS(BRK_RISING_TIME), 0);
-		//	printf("going to 0\n");
+			//	printf("going to 0\n");
 			state = 2;
 		}
 	}
@@ -388,47 +363,48 @@ void do_brake(int PWM) {
 	int ref = get_reference();
 	count_pit0 = 0;
 	//printf("brake to %d\n", PWM);
-	if(get_spd() > 100)
-	while (state < 5) {
-		set_steering_position();
-		if (count_pit0 > 25 && state == 0) {
-			set_direction(0);
-			minus = 1;
-			start_chspeed(MS_TO_CLOCKS(BRK_FALLING_TIME), get_spd()/4);
-			count_pit0 = 0;
-		//	printf("going to -50\n");
-			state = 1;
-		} else if (count_pit0 > BRK_FIRST_VALUE_TIME/5  && state == 1) {
-			start_chspeed(MS_TO_CLOCKS(BRK_RISING_TIME), 0);
-		//	printf("going to 0\n");
-			count_pit0 = 0;
-			state = 2;
-		} else if (count_pit0 > BRK_FIRST_VALUE_TIME/5  && state == 2) {
-			start_chspeed(MS_TO_CLOCKS(BRK_FALLING_TIME), get_spd()/4);
-		//	printf("going to 0\n");
-			count_pit0 = 0;
-			state = 3;
-		} else if (count_pit0 > BRK_FIRST_VALUE_TIME/5  && state == 3) {
-			start_chspeed(MS_TO_CLOCKS(BRK_RISING_TIME/2), 0);
-		//	printf("going to 0\n");
-			count_pit0 = 0;
-			state = 4;
-		} else if (count_pit0 > BRK_RISING_TIME / 10 && state == 4) {
-			set_direction(1);
-			start_chspeed(MS_TO_CLOCKS( BRK_RISING_TIME/2 ), PWM);
-		//	printf("going to %d\n",PWM);
-			state = 5;
+	if (get_spd() > 100)
+		while (state < 5) {
+			set_steering_position();
+			if (count_pit0 > 25 && state == 0) {
+				set_direction(0);
+				minus = 1;
+				start_chspeed(MS_TO_CLOCKS(BRK_FALLING_TIME), get_spd() / 4);
+				count_pit0 = 0;
+				//	printf("going to -50\n");
+				state = 1;
+			} else if (count_pit0 > BRK_FIRST_VALUE_TIME / 5 && state == 1) {
+				start_chspeed(MS_TO_CLOCKS(BRK_RISING_TIME), 0);
+				//	printf("going to 0\n");
+				count_pit0 = 0;
+				state = 2;
+			} else if (count_pit0 > BRK_FIRST_VALUE_TIME / 5 && state == 2) {
+				start_chspeed(MS_TO_CLOCKS(BRK_FALLING_TIME), get_spd() / 4);
+				//	printf("going to 0\n");
+				count_pit0 = 0;
+				state = 3;
+			} else if (count_pit0 > BRK_FIRST_VALUE_TIME / 5 && state == 3) {
+				start_chspeed(MS_TO_CLOCKS(BRK_RISING_TIME/2), 0);
+				//	printf("going to 0\n");
+				count_pit0 = 0;
+				state = 4;
+			} else if (count_pit0 > BRK_RISING_TIME / 10 && state == 4) {
+				set_direction(1);
+				start_chspeed(MS_TO_CLOCKS( BRK_RISING_TIME/2 ), PWM);
+				//	printf("going to %d\n",PWM);
+				state = 5;
+			}
 		}
-	}
 	//dumb_sleep(MS_TO_CLOCKS(BRK_RISING_TIME));
 }
 
-void set_PWM(int pwm){
+void set_PWM(int pwm) {
 	//printf("%d -> %d\n",get_reference(),pwm);
-	if(get_reference() == pwm)return;
-	if(pwm > get_reference()){
+	if (get_reference() == pwm)
+		return;
+	if (pwm > get_reference()) {
 		do_accelerate(pwm);
-	}else if(pwm < get_reference()){
+	} else if (pwm < get_reference()) {
 		do_brake(pwm);
 	}
 }
