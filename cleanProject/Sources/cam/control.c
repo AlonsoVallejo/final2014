@@ -49,6 +49,10 @@ double I();
 double D();
 double derivative();
 int minus = 0;
+
+//added for testing servo
+extern int servo_val;
+
 extern int brake;
 extern int main_error;
 extern RBUFF_TYPE rbuff[RBUFF_SIZE];
@@ -284,15 +288,20 @@ double PID(int servo) {
 
 int our_set_steering_position()
 {
+	int x;
 	line_error_val = crnt_frame.linepos;
-		if (crnt_frame.linepos < 0/* && CURVE_THRESHOLD < line_error_val*/) {
-			servo = crnt_frame.linepos;
+		if (crnt_frame.linepos < 0 /*&& CURVE_THRESHOLD < line_error_val*/) {
+			servo = crnt_frame.linepos*2;
 			SET_SERVO_LEFT(-servo);
-		} else if (crnt_frame.linepos > 0/* && CURVE_THRESHOLD < line_error_val*/) {
-			servo = crnt_frame.linepos;
+		} else if (crnt_frame.linepos > 0 /*&& CURVE_THRESHOLD < line_error_val*/) {
+			servo = crnt_frame.linepos*2;
 			SET_SERVO_RIGHT(servo);
 		}
 		prev_error = line_error_val;
+	/*if (servo_val>0)
+		SET_SERVO_RIGHT(servo_val);
+	else
+		SET_SERVO_LEFT(-servo_val);*/
 		return 0;
 }
 

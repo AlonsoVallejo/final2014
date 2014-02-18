@@ -15,12 +15,12 @@ void do_brake_to_0();//added by me!!!!
 
 // LINE DETECTION PARAMETERS ----------------------
 
-#define OFFSET 3 			//  muchie unde abs(frame[i] - frame[i-OFFSET]) > prag 
+#define OFFSET 5 			//  muchie unde abs(frame[i] - frame[i-OFFSET]) > prag 
 #define OFFSET_CORRECTION 2  // compenseaza eroarea pozitiei liniei datorata OFFSET
 #define MARGIN  3			// ofera posibilitatea ignorarii marginii frame-ului
 #define MIN_START_GAP 3		// lungime minima in pixeli a zonei albe la start
 #define MAX_START_GAP 20	 // lungime maxima in pixeli a zonei albe la start
-#define DEFAULT_LINE_THRESHOLD 5 // diferenta minima de intensitate pt detectie edge 
+#define DEFAULT_LINE_THRESHOLD 15 // diferenta minima de intensitate pt detectie edge 
 #define LINE_MIN_WIDTH 4     
 #define LINE_MAX_WIDTH 25
 

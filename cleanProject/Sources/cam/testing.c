@@ -15,6 +15,9 @@ int follow_line = 1;
 extern int DEFAULT_STEP;
 extern int command;
 
+//for testing servo
+int servo_val;
+
 void test(char cmd)
 {
 	SELECTION_LOW;
@@ -28,10 +31,10 @@ void test(char cmd)
 		start_chspeed(MS_TO_CLOCKS(2000), 32);
 		break;
 	case '2':
-		start_chspeed(MS_TO_CLOCKS(3000), 80);
+		start_chspeed(MS_TO_CLOCKS(1000), 60);
 		break;
 	case '3':
-		enable_motors();
+		start_chspeed(MS_TO_CLOCKS(1000), 80);
 		break;
 	case '4':
 		disable_motors();
@@ -47,16 +50,24 @@ void test(char cmd)
 		out_char('7');
 		SELECTION_HIGH;//INAPOI
 		break;
-	case 's':
-		//servo_irina+=10;
-		SET_SERVO_LEFT(20);
-		break;
 	case 'd':
 		SET_SERVO_RIGHT(20);
 		break;
 	case 'c':
 		SET_SERVO_CENTER();
 		break;
+	case 'a':
+		servo_val-=10;
+		io_printf("%d\n",servo_val);
+		our_set_steering_position();
+		break;
+	case 's':
+		servo_val+=10;
+		io_printf("%d\n",servo_val);
+		our_set_steering_position();
+		break;
+		
+		
 
 	}
 }

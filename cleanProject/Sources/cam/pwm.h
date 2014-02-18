@@ -44,7 +44,7 @@
 
 #define SERVO_MIN_PWM 		1130
 #define SERVO_MAX_PWM 		2230
-#define SERVO_CENTER 		1643   
+#define SERVO_CENTER 		1723  //old value 1643 
 
 
 #define SET_DUTY_LEFT(x) 	LEFT_MOTOR_VALUE  = ((x+THRESHOLD_ZERO)*(MOTOR_PWM_MOD/MAX_PWM))

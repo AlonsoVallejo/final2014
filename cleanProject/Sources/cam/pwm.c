@@ -13,17 +13,20 @@
 void SET_SERVO_LEFT(int x) {
 
 	x = SERVO_CENTER - (SERVO_CENTER - SERVO_MIN_PWM) * x / MAX_SERVO;
-	if (x < 1120) {// sa nu fortez prea tare stanga
-		x = 1120;
+	if (x < 1158) {// sa nu fortez prea tare stanga
+		x = 1158;
 	}
+	
 	SERVO_MOTOR_VALUE = x;
 }
 
 void SET_SERVO_RIGHT(int x) {
+	
 	x = SERVO_CENTER + (SERVO_MAX_PWM - SERVO_CENTER) * x / MAX_SERVO;
-	if (x > 2240) {//sa nu fortez prea tare dreapta
-		x = 2240;
+	if (x > 2280) {//sa nu fortez prea tare dreapta
+		x = 2280;
 	}
+	
 	SERVO_MOTOR_VALUE = x;
 }
 

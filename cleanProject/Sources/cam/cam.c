@@ -25,7 +25,7 @@ void send_frame() {
 		out_char(0);
 		//
 		for(i=0;i<NUM_CLOCKS/2;i+=1) {			
-			out_char(cam_buff[i]);
+			out_char(cam_prel[i]);
 		}
 		frame_count = 0;
 	}

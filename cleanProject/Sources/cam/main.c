@@ -64,13 +64,14 @@ double D();
 extern int frincu;
 void main(void) {
 	int i, abs_camerror, abs_camerror_before , speed ;
+	int sending;//pentru a trimite frame
 		int time_2s;
 		int fps;
 		char c;
 		abs_camerror_before=0;
 		speed=80;
 		fps = 50000 / (SI_TIMER / 1000);
-		
+		sending = 0;
 	MCG_FEI_BLPE();
 	
 	init_gpio();
@@ -98,6 +99,7 @@ void main(void) {
 		if(frincu)
 		{
 			got_frame();
+			
 			frincu=0;
 		}
 	}
