@@ -24,6 +24,16 @@ void do_brake_to_0();//added by me!!!!
 #define LINE_MIN_WIDTH 4     
 #define LINE_MAX_WIDTH 25
 
+//define 2014
+//for correcting the wrong center
+#define CENTER_CORRECTION 4
+
+//curve offset depending on curve direction
+#define CURVE_OFFSET 4
+
+#define BRAKE_THRESHHOLD 6
+
+
 
 // FRAME INFO AND DATA STRUCTS ---------------------
 
@@ -96,6 +106,10 @@ typedef struct log_entry_t
 
 
 // DECLARATIONS FOR OTHER SOURCES -----------------
+
+
+//average function for last 20 vals of line pos
+char avg();
 
 // called in cam.c in cam_pit0_isr() before starting to clock out pixels
 void got_frame();

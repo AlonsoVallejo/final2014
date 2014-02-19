@@ -61,7 +61,9 @@ double P(double x);
 double I();
 double D();
 
+extern int need_brake;
 extern int frincu;
+
 void main(void) {
 	int i, abs_camerror, abs_camerror_before , speed ;
 	int sending;//pentru a trimite frame
@@ -102,6 +104,19 @@ void main(void) {
 			
 			frincu=0;
 		}
+		
+		if (need_brake ==1 )
+		{
+			
+				start_chspeed(MS_TO_CLOCKS(500), 30);
+				//need_brake = 0 ; 
+		}
+		else
+			if (need_brake ==2)
+			{
+				start_chspeed(MS_TO_CLOCKS(500), 80);
+				need_brake = 0 ; 
+			}
 	}
 
 }

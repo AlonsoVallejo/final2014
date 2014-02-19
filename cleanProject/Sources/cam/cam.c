@@ -10,6 +10,8 @@ unsigned char *cam_prel;
 unsigned char camera1_buff[128];
 unsigned char camera2_buff[128];
 int frincu;
+
+
 //pit0 - si and first clk
 //pit1 - clk
 //check documentation for further information
@@ -76,7 +78,7 @@ void pit0_isr(void){
 		cam_state = 0;					// next state - first
 		break;
 	}
-
+	
 	PIT_TFLG0 = 1;						// clear interrupt flag for pit0
 	PIT_TFLG1 = 1;						// clear interrupt flag for pit1
 	PIT_TCTRL0 = PIT_TCTRL_TEN_MASK | PIT_TCTRL_TIE_MASK; //workaround to re-enable interrupts

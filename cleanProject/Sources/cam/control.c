@@ -102,17 +102,42 @@ extern int servo;
 
 void set_steering_position();
 
+int need_brake=0;
+const char sum_20=210;
+char  line_buf[20]={0};
+char head =0 ; 
 
-int iuli=0;
+
+
+char avg()
+{
+	int i = 0 ;
+	int sum=0  ;
+	int start = head ; 
+	int count = 20 ; 
+	char to_print;
+	for (;i<20;i++)
+	{
+		sum+=line_buf[start]*count;
+		count--;
+		//_|_|_|_|_|_|_
+		start = ((start -1)%20+20)%20;
+	}
+	 to_print= (char) sum/sum_20;
+	//io_printf("%d\n",to_print);
+	return to_print;
+}
+
 
 void got_frame() {
 	
 	int i, edgei = 0;
 	char c = 255;
+	
 	// first update time
 	time_5ms++;
 	time_50ms++;
-	iuli++;
+	
 	time_2s_aux++;
 	if (time_2s_aux == 200) {
 		time_2s_aux = 0;
@@ -129,8 +154,7 @@ void got_frame() {
 	//detect edges in frame using a threshold of the derivative
 	for (i = MARGIN + OFFSET; i < 128 - MARGIN; i += 1) {
 		dc = cam_prel[i] - cam_prel[i - OFFSET];
-		//if(iuli==400)
-			//io_printf("dc is %d\n",dc);
+		
 		sign = 1;
 		if (dc < 0) {
 			dc = -dc;
@@ -167,7 +191,18 @@ void got_frame() {
 					crnt_frame.type = FRAME_LINE;
 				else
 					crnt_frame.type = FRAME_ERROR; // if not its a malformed frame
-				crnt_frame.linepos = linepos;
+				//crnt_frame.linepos = linepos-CENTER_CORRECTION;
+				line_buf[head]= linepos - CENTER_CORRECTION; 
+				
+				
+				
+				crnt_frame.linepos = line_buf[head]-avg();
+				if (abs(line_buf[head]-line_buf[((head -5)%20+20)%20])>BRAKE_THRESHHOLD)
+				{
+					need_brake = (need_brake+1)%2 +1;
+				}
+				head=(head+1)%20;
+						//+((linepos-CENTER_CORRECTION)/abs(linepos-CENTER_CORRECTION))*CURVE_OFFSET;
 				if (code == 1)
 					code = 2;
 				else
@@ -197,7 +232,7 @@ void got_frame() {
 	}
 
 	// add frame info to ring buffer (to be used later)
-	RBUFF_PUSH(crnt_frame);
+	//RBUFF_PUSH(crnt_frame);
 
 	ADC0_SC1A = ADC0_SC1A_VAL_LEFT;
 	adc_read_state = 1;
