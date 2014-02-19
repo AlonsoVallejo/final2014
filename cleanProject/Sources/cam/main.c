@@ -8,7 +8,7 @@
 
 
 
-uint32 bigcount=0;
+uint32 bigcount=-360;
 RBUFF_TYPE rbuff[RBUFF_SIZE];
 
 // steering proportional cu factorul 3/2     /// 7/2
@@ -91,6 +91,7 @@ void main(void) {
 	i=0;
 	
 	io_printf("buna ziua!!\n");
+
 	while (1) {
 		if(char_present())
 		
@@ -108,13 +109,13 @@ void main(void) {
 		if (need_brake ==1 )
 		{
 			
-				start_chspeed(MS_TO_CLOCKS(500), 30);
-				//need_brake = 0 ; 
+				//start_chspeed(MS_TO_CLOCKS(500), 30);
+				need_brake = 0 ; 
 		}
 		else
 			if (need_brake ==2)
 			{
-				start_chspeed(MS_TO_CLOCKS(500), 80);
+				//start_chspeed(MS_TO_CLOCKS(500), 80);
 				need_brake = 0 ; 
 			}
 	}

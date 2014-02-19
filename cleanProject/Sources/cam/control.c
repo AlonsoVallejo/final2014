@@ -64,7 +64,7 @@ unsigned char adc_read_right = 0;
 short adc_read_left_signed = 0;
 short adc_read_right_signed = 0;
 int time_50ms;
-extern int bigcount;
+
 extern int sw;
 extern int command;
 
@@ -100,30 +100,74 @@ void adc0_current_read();
 extern int flag_sec;
 extern int servo;
 
+
+//bigcount for plotting curve 
+extern uint32 bigcount;
 void set_steering_position();
 
+
 int need_brake=0;
-const char sum_20=210;
-char  line_buf[20]={0};
+const char sum_max=(char)LINE_BUF_MAX*(LINE_BUF_MAX-1)/2;
+char  line_buf[LINE_BUF_MAX]={0};
 char head =0 ; 
+int show_it = 0;
+int state = 0  ; 
 
-
+void check_monotony()
+{
+	int i = 0 ;
+	int sign_count = 0 ; 
+	int current = head;
+	int head_sign;
+	int previous;
+	int diff=0;
+	previous = ((head-DIFFERENCE)%LINE_BUF_MAX+LINE_BUF_MAX)%LINE_BUF_MAX;
+	head_sign = line_buf[head] / abs(line_buf[head]);
+	
+	for (;i<SAMPLE_SIZE;i++)
+	{
+		//~|~|_|_|_|_|_
+		diff = (line_buf[current]-line_buf[previous]);
+		if (diff!=0)
+		{
+			sign_count += (( diff/ abs(diff))*head_sign + 1)/2;
+		}
+		
+		current = previous;
+		previous = ((previous-DIFFERENCE)%LINE_BUF_MAX+LINE_BUF_MAX)%LINE_BUF_MAX;	
+	}
+	
+	//io_printf("#%d#\n",sign_count);
+	if((sign_count * 100)/SAMPLE_SIZE < THRESHOLD_ACC && state == 1 )
+		{
+			//io_printf("out\n");
+			start_chspeed(MS_TO_CLOCKS(500),80);
+			state = 0 ; 
+		}
+	
+	if((sign_count * 100)/SAMPLE_SIZE > THRESHOLD_BRAKE && state == 0)
+		{
+			//io_printf("in\n");
+		start_chspeed(MS_TO_CLOCKS(200),30);
+			state = 1 ; 
+		}
+}
 
 char avg()
 {
 	int i = 0 ;
 	int sum=0  ;
 	int start = head ; 
-	int count = 20 ; 
+	int count = LINE_BUF_MAX ; 
 	char to_print;
-	for (;i<20;i++)
+	for (;i<LINE_BUF_MAX;i++)
 	{
 		sum+=line_buf[start]*count;
 		count--;
 		//_|_|_|_|_|_|_
-		start = ((start -1)%20+20)%20;
+		start = ((start -1)%LINE_BUF_MAX+LINE_BUF_MAX)%LINE_BUF_MAX;
 	}
-	 to_print= (char) sum/sum_20;
+	 to_print= (char) sum/sum_max;
 	//io_printf("%d\n",to_print);
 	return to_print;
 }
@@ -133,7 +177,7 @@ void got_frame() {
 	
 	int i, edgei = 0;
 	char c = 255;
-	
+
 	// first update time
 	time_5ms++;
 	time_50ms++;
@@ -148,7 +192,6 @@ void got_frame() {
 	}
 
 	count_pit0++;
-
 	
 	our_set_steering_position();
 	//detect edges in frame using a threshold of the derivative
@@ -191,17 +234,29 @@ void got_frame() {
 					crnt_frame.type = FRAME_LINE;
 				else
 					crnt_frame.type = FRAME_ERROR; // if not its a malformed frame
-				//crnt_frame.linepos = linepos-CENTER_CORRECTION;
+
 				line_buf[head]= linepos - CENTER_CORRECTION; 
 				
-				
-				
+				/*io_printf("%d %d\n",bigcount,line_buf[head]);
+				bigcount++;*/
 				crnt_frame.linepos = line_buf[head]-avg();
-				if (abs(line_buf[head]-line_buf[((head -5)%20+20)%20])>BRAKE_THRESHHOLD)
+				
+				/*if (abs(line_buf[head]-line_buf[((head -5)%20+20)%20])>BRAKE_THRESHHOLD)
 				{
 					need_brake = (need_brake+1)%2 +1;
+				}*/
+				
+				head=(head+1)%LINE_BUF_MAX;
+				
+				
+				if(show_it == 10)
+				{
+					check_monotony();
+					show_it = 0;
 				}
-				head=(head+1)%20;
+				show_it++;
+				
+				
 						//+((linepos-CENTER_CORRECTION)/abs(linepos-CENTER_CORRECTION))*CURVE_OFFSET;
 				if (code == 1)
 					code = 2;

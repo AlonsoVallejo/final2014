@@ -26,14 +26,18 @@ void do_brake_to_0();//added by me!!!!
 
 //define 2014
 //for correcting the wrong center
-#define CENTER_CORRECTION 4
+#define CENTER_CORRECTION 5
 
 //curve offset depending on curve direction
 #define CURVE_OFFSET 4
 
 #define BRAKE_THRESHHOLD 6
+#define LINE_BUF_MAX 100
 
-
+#define THRESHOLD_ACC 25
+#define THRESHOLD_BRAKE 60
+#define DIFFERENCE 2
+#define SAMPLE_SIZE 20
 
 // FRAME INFO AND DATA STRUCTS ---------------------
 
