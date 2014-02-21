@@ -26,7 +26,7 @@ void do_brake_to_0();//added by me!!!!
 
 //define 2014
 //for correcting the wrong center
-#define CENTER_CORRECTION 5
+#define CENTER_CORRECTION 6
 
 //curve offset depending on curve direction
 #define CURVE_OFFSET 4
@@ -37,7 +37,7 @@ void do_brake_to_0();//added by me!!!!
 #define THRESHOLD_ACC 25
 #define THRESHOLD_BRAKE 60
 #define DIFFERENCE 2
-#define SAMPLE_SIZE 20
+#define SAMPLE_SIZE 15
 
 // FRAME INFO AND DATA STRUCTS ---------------------
 

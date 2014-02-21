@@ -22,19 +22,18 @@ void test(char cmd)
 {
 	SELECTION_LOW;
 	enable_motors();
-	//int servo_irina=0;
-	//int servo_hristea=0;
+	
 	switch (cmd)
 	{
 	case '1':
-		init_chspeed();
-		start_chspeed(MS_TO_CLOCKS(2000), 32);
-		break;
-	case '2':
+		//init_chspeed();
 		start_chspeed(MS_TO_CLOCKS(1000), 60);
 		break;
-	case '3':
+	case '2':
 		start_chspeed(MS_TO_CLOCKS(1000), 80);
+		break;
+	case '3':
+		start_chspeed(MS_TO_CLOCKS(1000), 100);
 		break;
 	case '4':
 		disable_motors();

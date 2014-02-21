@@ -127,7 +127,7 @@ void init_chspeed() {
 	SIM_SCGC6 |= SIM_SCGC6_PIT_MASK; 	//enable clock distribution to module	
 	SET_DUTY_LEFT(-40);
 	SET_DUTY_RIGHT(-40);
-	
+	io_printf("~|~\n");
 	// set pit interrupt service routine  
 	disable_irq(71);
 	

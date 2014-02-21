@@ -16,6 +16,10 @@ int frincu;
 //pit1 - clk
 //check documentation for further information
 
+void test_isr(void)
+{
+	io_printf("irq71");
+}
 void send_frame() {
 	int i;
 	frame_count++;

@@ -8,7 +8,7 @@
 
 
 
-uint32 bigcount=-360;
+int bigcount=-360;
 RBUFF_TYPE rbuff[RBUFF_SIZE];
 
 // steering proportional cu factorul 3/2     /// 7/2

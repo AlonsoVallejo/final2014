@@ -107,9 +107,9 @@ void set_steering_position();
 
 
 int need_brake=0;
-const char sum_max=(char)LINE_BUF_MAX*(LINE_BUF_MAX-1)/2;
-char  line_buf[LINE_BUF_MAX]={0};
-char head =0 ; 
+const char sum_max=(LINE_BUF_MAX*(LINE_BUF_MAX-1)/2);
+int  line_buf[LINE_BUF_MAX]={0};
+int head =0 ; 
 int show_it = 0;
 int state = 0  ; 
 
@@ -141,7 +141,7 @@ void check_monotony()
 	if((sign_count * 100)/SAMPLE_SIZE < THRESHOLD_ACC && state == 1 )
 		{
 			//io_printf("out\n");
-			start_chspeed(MS_TO_CLOCKS(500),80);
+			start_chspeed(MS_TO_CLOCKS(200),70);
 			state = 0 ; 
 		}
 	
@@ -168,7 +168,7 @@ char avg()
 		start = ((start -1)%LINE_BUF_MAX+LINE_BUF_MAX)%LINE_BUF_MAX;
 	}
 	 to_print= (char) sum/sum_max;
-	//io_printf("%d\n",to_print);
+	
 	return to_print;
 }
 
@@ -237,8 +237,10 @@ void got_frame() {
 
 				line_buf[head]= linepos - CENTER_CORRECTION; 
 				
+				//for plotting in matlab
 				/*io_printf("%d %d\n",bigcount,line_buf[head]);
 				bigcount++;*/
+				
 				crnt_frame.linepos = line_buf[head]-avg();
 				
 				/*if (abs(line_buf[head]-line_buf[((head -5)%20+20)%20])>BRAKE_THRESHHOLD)
@@ -280,6 +282,7 @@ void got_frame() {
 		break;
 	case FRAME_START:
 		last_start_time = time_5ms;
+		disable_motors();
 		break;
 	case FRAME_LINE:
 		last_line_time = time_5ms;
