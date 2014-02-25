@@ -1,0 +1,24 @@
+/*
+ * File:		uart.h
+ * Purpose:     Provide common ColdFire UART routines for polled serial IO
+ *
+ * Notes:
+ */
+
+#ifndef __UART_H__
+#define __UART_H__
+
+/********************************************************************/
+//switched channel to UART0 pentru XBEE - modificare facut de Cristi si Iuli :)
+#define TERM_PORT UART0_BASE_PTR
+#define DEFAULT_BAUD 115200
+#define _50MHZ_CLOCK 50000
+
+void uart_init (UART_MemMapPtr, int, int);
+char uart_getchar (UART_MemMapPtr);
+void uart_putchar (UART_MemMapPtr, char);
+int uart_getchar_present (UART_MemMapPtr);
+
+/********************************************************************/
+
+#endif /* __UART_H__ */
