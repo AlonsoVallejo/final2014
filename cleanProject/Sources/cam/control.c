@@ -112,6 +112,9 @@ int  line_buf[LINE_BUF_MAX]={0};
 int head =0 ; 
 int show_it = 0;
 int state = 0  ; 
+int prevStartTime = 0; //timpul de aparitie al frame-ului anterior de start
+int firstLineDetection = 1; // variabila pentru pornirea masinutei daca prima oara se detecteaza frame de linie si nu de start
+int startCounter = 0; //pentru contorizarea frame-urilor de start
 
 void check_monotony()
 {
@@ -231,7 +234,16 @@ void got_frame() {
 			
 			if (linewidth > LINE_MIN_WIDTH && linewidth < LINE_MAX_WIDTH) {
 				if (crnt_frame.type == FRAME_NONE) // check if it is the first line of the desired width 
+				{
 					crnt_frame.type = FRAME_LINE;
+					
+					//in cazul in care prima oara se detecteaza frame de linie si nu de start
+					if(firstLineDetection)
+					{
+						start_chspeed(MS_TO_CLOCKS(1000), 100);
+						firstLineDetection = 0;
+					}
+				}
 				else
 					crnt_frame.type = FRAME_ERROR; // if not its a malformed frame
 
@@ -282,7 +294,22 @@ void got_frame() {
 		break;
 	case FRAME_START:
 		last_start_time = time_5ms;
-		disable_motors();
+		//daca nu mai capturasem niciun frame de start
+		if(!prevStartTime)
+		{
+			//retin timpul
+			prevStartTime = time_5ms;
+			start_chspeed(MS_TO_CLOCKS(1000), 100);
+			//maresc contorul pentru frame-uri de start
+			startCounter++;
+		}
+		//daca am mai capturat frame-uri de start
+		else
+			//daca diferenta dintre timpul primei aparitii a unui frame de start
+			//si aparitia frame-ului curent de start e mai mare decat START_GAP_INTERVAL
+			//si daca pana acum am mai intalnit un singur frame de start
+			if(time_5ms - prevStartTime > START_GAP_INTERVAL && startCounter == 1)
+				disable_motors();//opreste motoarele
 		break;
 	case FRAME_LINE:
 		last_line_time = time_5ms;

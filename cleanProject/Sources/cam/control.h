@@ -23,7 +23,7 @@ void do_brake_to_0();//added by me!!!!
 #define DEFAULT_LINE_THRESHOLD 15 // diferenta minima de intensitate pt detectie edge 
 #define LINE_MIN_WIDTH 4     
 #define LINE_MAX_WIDTH 25
-
+#define START_GAP_INTERVAL 600 //diferenta minima de aparitie dintre doua frame-uri de start
 //define 2014
 //for correcting the wrong center
 #define CENTER_CORRECTION 6
