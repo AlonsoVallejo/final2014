@@ -90,7 +90,7 @@ void main(void) {
 	stopped = 1;
 	i=0;
 	
-	io_printf("buna ziua!!\n");
+	io_printf("b!!\n\r");
 
 	while (1) {
 		if(char_present())

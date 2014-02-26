@@ -141,14 +141,14 @@ void check_monotony()
 	if((sign_count * 100)/SAMPLE_SIZE < THRESHOLD_ACC && state == 1 )
 		{
 			//io_printf("out\n");
-			start_chspeed(MS_TO_CLOCKS(200),70);
+			start_chspeed(MS_TO_CLOCKS(200),100);
 			state = 0 ; 
 		}
 	
 	if((sign_count * 100)/SAMPLE_SIZE > THRESHOLD_BRAKE && state == 0)
 		{
 			//io_printf("in\n");
-		start_chspeed(MS_TO_CLOCKS(200),30);
+		start_chspeed(MS_TO_CLOCKS(200),80);
 			state = 1 ; 
 		}
 }
@@ -241,7 +241,7 @@ void got_frame() {
 				/*io_printf("%d %d\n",bigcount,line_buf[head]);
 				bigcount++;*/
 				
-				crnt_frame.linepos = line_buf[head]-avg();
+				crnt_frame.linepos += line_buf[head]-(avg()*(line_buf[head]/abs(line_buf[head])));
 				
 				/*if (abs(line_buf[head]-line_buf[((head -5)%20+20)%20])>BRAKE_THRESHHOLD)
 				{
@@ -282,7 +282,7 @@ void got_frame() {
 		break;
 	case FRAME_START:
 		last_start_time = time_5ms;
-		disable_motors();
+		//disable_motors();
 		break;
 	case FRAME_LINE:
 		last_line_time = time_5ms;

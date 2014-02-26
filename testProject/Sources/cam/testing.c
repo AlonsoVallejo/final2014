@@ -36,7 +36,7 @@ void test(char cmd)
 		start_chspeed(MS_TO_CLOCKS(1000), 100);
 		break;
 	case '4':
-		disable_motors();
+		start_chspeed(MS_TO_CLOCKS(1000), 120);
 		break;
 	case '5':
 		start_chspeed(MS_TO_CLOCKS(2000), 0);

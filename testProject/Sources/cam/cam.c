@@ -10,6 +10,7 @@ unsigned char *cam_prel;
 unsigned char camera1_buff[128];
 unsigned char camera2_buff[128];
 int frincu;
+int testvar = 1;
 
 
 //pit0 - si and first clk
@@ -52,7 +53,11 @@ void pit0_isr(void){
 	unsigned char* da;
 	PIT_TCTRL0 = 0;
 	PIT_TCTRL1 = 0;
-	
+	if(testvar == 1)
+	{
+		testvar = 0;
+		io_printf("%d\n",1);
+	}
 	switch (cam_state) {
 	case 0: 
 		GPIOC_PCOR = GPIO_PIN(CLK_PIN); // clear CLK 
