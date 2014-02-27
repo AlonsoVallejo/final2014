@@ -53,6 +53,7 @@ extern void adc1_isr(void);
 extern void pit0_isr(void);
 extern void pit1_isr(void);
 extern void update_speed(void);
+extern void senzor_turatie(void);
 #ifdef __cplusplus
 }
 #endif
@@ -168,7 +169,7 @@ static __declspec(vectortable) tVectorTable __vect_table = { /* Interrupt vector
    (tIsrFunc)UNASSIGNED_ISR,                               /* 100 (0x00000190) (prior: -) */
    (tIsrFunc)UNASSIGNED_ISR,                               /* 101 (0x00000194) (prior: -) */
    (tIsrFunc)UNASSIGNED_ISR,                               /* 102 (0x00000198) (prior: -) */
-   (tIsrFunc)UNASSIGNED_ISR,                               /* 103 (0x0000019C) (prior: -) */
+   (tIsrFunc)senzor_turatie,                               /* 103 (0x0000019C) (prior: -) */
    (tIsrFunc)UNASSIGNED_ISR,                               /* 104 (0x000001A0) (prior: -) */
    (tIsrFunc)UNASSIGNED_ISR,                               /* 105 (0x000001A4) (prior: -) */
    (tIsrFunc)UNASSIGNED_ISR,                               /* 106 (0x000001A8) (prior: -) */

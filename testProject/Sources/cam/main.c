@@ -38,7 +38,7 @@ extern int follow_line;
 extern int count_pit0;
 extern short adc_read_left_signed;
 extern short adc_read_right_signed;
-
+extern int counter_turatie;
 
 int line_error;
 int main_error = 0;
@@ -55,6 +55,7 @@ float servo;
 int command = -1;
 int st_challenge = 0;
 int flag_sec;
+unsigned char turatie_crt = 0;
 
 double PID(int servo);
 double P(double x);
@@ -67,24 +68,25 @@ extern int frincu;
 void main(void) {
 	int i, abs_camerror, abs_camerror_before , speed ;
 	int sending;//pentru a trimite frame
-		int time_2s;
-		int fps;
-		char c;
-		abs_camerror_before=0;
-		speed=80;
-		fps = 50000 / (SI_TIMER / 1000);
-		sending = 0;
+	int time_2s;
+	int fps;
+	char c;
+	int time_5ms_passed = 0;
+	abs_camerror_before=0;
+	speed=80;
+	fps = 50000 / (SI_TIMER / 1000);
+	sending = 0;
 	MCG_FEI_BLPE();
 	
-	init_gpio();
+	
 	init_uart();
-	
-
-	
 	init_adc(); // setup ADC0 and ADC1, including ISR's from other source files
 	init_cam(); // setup PIT0 and PIT1
 	init_pwm(); // init ftm's for pwm generation - motors and servo
+	init_gpio();
+	
 	init_chspeed(); // motors.c; until PID is available
+	
 	// center wheels on start
 	SERVO_MOTOR_VALUE = SERVO_CENTER_PWM;
 	stopped = 1;
@@ -103,6 +105,14 @@ void main(void) {
 		{
 			got_frame();
 			
+			time_5ms_passed++;
+			if(time_5ms_passed >= 100)
+			{
+				time_5ms_passed = 0;
+				turatie_crt = counter_turatie;
+				counter_turatie = 0;
+				io_printf("tr: %d\n",turatie_crt);
+			}
 			frincu=0;
 		}
 		

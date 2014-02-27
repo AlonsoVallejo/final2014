@@ -8,6 +8,7 @@
 #include "motors.h"
 #include "pwm.h"
 #include "utils.h"
+#include "gpio.h"
 
 
 static int crnt_speed = 0;
@@ -78,6 +79,7 @@ void update_speed(){
 	
 //	SET_DUTY_LEFT(PWML_ABS);
 //	SET_DUTY_RIGHT(PWMR_ABS);
+	LED2_TOGGLE; //STERGE DUPA TESTEEEEEEE!!!!
 	PIT_TFLG3 = 1; 						// clear interrupt flag for pit1
 	PIT_TCTRL3 = PIT_TCTRL_TIE_MASK | PIT_TCTRL_TEN_MASK; //workaround to re-enable interrupts
 }
@@ -129,7 +131,7 @@ void init_chspeed() {
 	SET_DUTY_RIGHT(-40);
 	io_printf("~|~\n");
 	// set pit interrupt service routine  
-	disable_irq(71);
+	//disable_irq(71);
 	
 	enable_irq(71);
 	

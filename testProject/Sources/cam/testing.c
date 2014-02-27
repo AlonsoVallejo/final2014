@@ -12,6 +12,9 @@ int stopped;
 extern int count_pit0;
 int demo_state = 0;
 int follow_line = 1;
+//TO DO: adaugare cod PID turatie
+int turatie_ref = 0;
+extern int turatie_crt;
 extern int DEFAULT_STEP;
 extern int command;
 
@@ -42,8 +45,7 @@ void test(char cmd)
 		start_chspeed(MS_TO_CLOCKS(2000), 0);
 		break;
 	case '6':
-		out_char('6');
-		SELECTION_LOW;//INAINTE
+		disable_motors();
 		break;
 	case '7':
 		out_char('7');

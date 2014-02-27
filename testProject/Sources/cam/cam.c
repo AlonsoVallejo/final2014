@@ -114,8 +114,8 @@ void init_cam(){
 	cam_buff = camera2_buff;
 
 	// set pit0 interrupt service routine  
-	disable_irq(68);
-	disable_irq(69);
+	//disable_irq(68);
+	//disable_irq(69);
 	//__vector_table[84] = (uint32)&pit0_isr; 
 	
 	

@@ -52,6 +52,8 @@ int minus = 0;
 
 //added for testing servo
 extern int servo_val;
+//contor turatie
+extern int counter_turatie;
 
 extern int brake;
 extern int main_error;
@@ -141,14 +143,14 @@ void check_monotony()
 	if((sign_count * 100)/SAMPLE_SIZE < THRESHOLD_ACC && state == 1 )
 		{
 			//io_printf("out\n");
-			start_chspeed(MS_TO_CLOCKS(200),100);
+			start_chspeed(MS_TO_CLOCKS(200),70);
 			state = 0 ; 
 		}
 	
 	if((sign_count * 100)/SAMPLE_SIZE > THRESHOLD_BRAKE && state == 0)
 		{
 			//io_printf("in\n");
-		start_chspeed(MS_TO_CLOCKS(200),80);
+		start_chspeed(MS_TO_CLOCKS(200),30);
 			state = 1 ; 
 		}
 }
@@ -214,10 +216,12 @@ void got_frame() {
 
 	}
 
-	if (time_50ms == 20) {
+/*
+	if (time_50ms == 200) {
+		io_printf("t=%d\n",counter_turatie);
+		counter_turatie = 0;
 		time_50ms = 0;
-
-	}
+	}*/
 
 	// proceed to interpreting the edge list
 	crnt_frame.type = FRAME_NONE;
@@ -241,7 +245,7 @@ void got_frame() {
 				/*io_printf("%d %d\n",bigcount,line_buf[head]);
 				bigcount++;*/
 				
-				crnt_frame.linepos += line_buf[head]-(avg()*(line_buf[head]/abs(line_buf[head])));
+				crnt_frame.linepos += (line_buf[head]-avg());
 				
 				/*if (abs(line_buf[head]-line_buf[((head -5)%20+20)%20])>BRAKE_THRESHHOLD)
 				{
@@ -251,13 +255,13 @@ void got_frame() {
 				head=(head+1)%LINE_BUF_MAX;
 				
 				
-				if(show_it == 10)
+				/*if(show_it == 10)
 				{
 					check_monotony();
 					show_it = 0;
 				}
 				show_it++;
-				
+				*/
 				
 						//+((linepos-CENTER_CORRECTION)/abs(linepos-CENTER_CORRECTION))*CURVE_OFFSET;
 				if (code == 1)
@@ -282,7 +286,7 @@ void got_frame() {
 		break;
 	case FRAME_START:
 		last_start_time = time_5ms;
-		//disable_motors();
+		disable_motors();
 		break;
 	case FRAME_LINE:
 		last_line_time = time_5ms;

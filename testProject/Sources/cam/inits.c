@@ -2,6 +2,8 @@
 #include "utils.h"
 #include "cam.h"
 #include "uart.h"
+#include "gpio.h"
+int counter_turatie = 0;
 
 void init_uart()
 {
@@ -14,11 +16,30 @@ void init_uart()
 }
 
 void init_gpio() {
-	SIM_SCGC5 |= SIM_SCGC5_PORTC_MASK;         // enable clock distribution
+	SIM_SCGC5 |= SIM_SCGC5_PORTC_MASK | SIM_SCGC5_PORTA_MASK;   // enable clock distribution
 	PORTC_PCR0 = PORT_PCR_MUX(1);		  // set pin0 on PORTC muxing 	
 	PORTC_PCR1 = PORT_PCR_MUX(1);		  // set pin0 on PORTC muxing	
 	GPIOC_PDDR = GPIO_PDDR_PDD(GPIO_PIN(SI_PIN) | GPIO_PIN(CLK_PIN) ); // set pins for output
 	GPIOC_PCOR = GPIO_PIN(1)|GPIO_PIN(0); // clear pin values 
+	
+	PORTA_PCR11 = PORT_PCR_MUX(1);
+	PORTA_PCR28 = PORT_PCR_MUX(1);
+	PORTA_PCR29 = PORT_PCR_MUX(1);
+	PORTA_PCR10 = PORT_PCR_MUX(1);
+		
+	// Setup outputs/inputs
+	GPIOA_PDDR = 0x30000C00;
+
+	PORTA_PCR16 = PORT_PCR_MUX(1) | PORT_PCR_PE_MASK | PORT_PCR_PS_MASK | PORT_PCR_IRQC(0xa);
+	enable_irq(87);
+}
+
+void senzor_turatie(void)
+{
+	//io_printf("NR!\n");
+	counter_turatie++;
+	PORTA_ISFR = (1 << 16);
+	LED1_TOGGLE;
 }
 
 uint8 calibrate_adc1() {
@@ -81,7 +102,7 @@ void init_adc() {
 		printf("Calibration error\n");
 	
 	//set adc conversion complete isr
-	disable_irq(58);
+	//disable_irq(58);
 	//__vector_table[74] = (uint32)&adc1_isr;
 	enable_irq(58);	
 	
