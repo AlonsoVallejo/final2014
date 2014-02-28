@@ -18,7 +18,7 @@ int follow_line = 1;
 extern int DEFAULT_STEP;
 extern int command;
 extern unsigned char turatie_ref;
-
+extern int pwm_crt;
 //for testing servo
 int servo_val;
 
@@ -30,23 +30,24 @@ void test(char cmd)
 	switch (cmd)
 	{
 	case '1':
-		turatie_ref = 2;
-		break;
-	case '2':
-		turatie_ref = 3;
-		break;
-	case '3':
 		turatie_ref = 5;
 		break;
+	case '2':
+		turatie_ref = 10;
+		break;
+	case '3':
+		turatie_ref = 20;
+		break;
 	case '4':
-		turatie_ref = 7;
+		turatie_ref = 30;
 		break;
 	case '5':
-		turatie_ref = 9;
+		turatie_ref = 40;
 		break;
 	case '6':
-		//disable_motors();
+		disable_motors();
 		turatie_ref = 0;
+		pwm_crt=0;
 		break;
 	case '7':
 		out_char('7');

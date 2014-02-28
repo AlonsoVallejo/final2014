@@ -40,6 +40,13 @@ extern short int reference;
 #define Kd_coef_A 1
 #define Kd_coef_B 1
 
+
+#define K1 6
+#define P1  5
+#define K2  1
+#define P2  1
+
+
 #define Kp(x) ((x*Kp_coef_A)/Kp_coef_B)
 #define Ki() ((integral()*Ki_coef_A)/Ki_coef_B)
 #define Kd() ((derivative()*Kd_coef_A)/Kd_coef_B)/// derivative trebuie implementat
@@ -109,7 +116,7 @@ void set_steering_position();
 
 
 int need_brake=0;
-const char sum_max=(LINE_BUF_MAX*(LINE_BUF_MAX-1)/2);
+const int sum_max=(LINE_BUF_MAX*(LINE_BUF_MAX-1)/2);
 int  line_buf[LINE_BUF_MAX]={0};
 int head =0 ; 
 int show_it = 0;
@@ -164,12 +171,12 @@ char avg()
 	char to_print;
 	for (;i<LINE_BUF_MAX;i++)
 	{
-		sum+=line_buf[start]*count;
+		sum+=line_buf[start];//*count;
 		count--;
 		//_|_|_|_|_|_|_
 		start = ((start -1)%LINE_BUF_MAX+LINE_BUF_MAX)%LINE_BUF_MAX;
 	}
-	 to_print= (char) sum/sum_max;
+	 to_print= (char) sum/LINE_BUF_MAX;//sum_max;
 	
 	return to_print;
 }
@@ -245,7 +252,7 @@ void got_frame() {
 				/*io_printf("%d %d\n",bigcount,line_buf[head]);
 				bigcount++;*/
 				
-				crnt_frame.linepos += (line_buf[head]-avg());
+				crnt_frame.linepos = ((line_buf[head]*K1)/P1)+(((line_buf[head]-avg())*K2)/P2);
 				
 				/*if (abs(line_buf[head]-line_buf[((head -5)%20+20)%20])>BRAKE_THRESHHOLD)
 				{
@@ -388,17 +395,14 @@ int our_set_steering_position()
 	int x;
 	line_error_val = crnt_frame.linepos;
 		if (crnt_frame.linepos < 0 /*&& CURVE_THRESHOLD < line_error_val*/) {
-			servo = crnt_frame.linepos*2;
+			servo = crnt_frame.linepos;
 			SET_SERVO_LEFT(-servo);
 		} else if (crnt_frame.linepos > 0 /*&& CURVE_THRESHOLD < line_error_val*/) {
-			servo = crnt_frame.linepos*2;
+			servo = crnt_frame.linepos;
 			SET_SERVO_RIGHT(servo);
 		}
 		prev_error = line_error_val;
-	/*if (servo_val>0)
-		SET_SERVO_RIGHT(servo_val);
-	else
-		SET_SERVO_LEFT(-servo_val);*/
+	
 		return 0;
 }
 

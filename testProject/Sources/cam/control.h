@@ -31,7 +31,7 @@ void do_brake_to_0();//added by me!!!!
 //curve offset depending on curve direction
 #define CURVE_OFFSET 4
 
-#define BRAKE_THRESHHOLD 6
+#define BRAKE_THRESHHOLD 15
 #define LINE_BUF_MAX 100
 
 #define THRESHOLD_ACC 25

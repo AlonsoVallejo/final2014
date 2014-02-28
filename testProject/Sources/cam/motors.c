@@ -21,7 +21,7 @@ extern int PWMR_ABS;
 extern int PWML_ABS;
 extern unsigned char turatie_crt;
 extern unsigned char turatie_ref;
-extern unsigned char pwm_crt;
+extern int pwm_crt;
 
 int count_pit0 = 0;
 const unsigned char get_spd(){
@@ -80,11 +80,12 @@ void update_speed(){
 		err = 10 ;
 	if(err < -10)
 		err = -10;
-	if(pwm_crt<(-1)*(TURATIE_TO_PWM(err)))
-			pwm_crt=0;
+	
 	pwm_crt+=TURATIE_TO_PWM(err);
 	if(pwm_crt > 200)
 		pwm_crt = 200;
+	if(pwm_crt<0)
+		pwm_crt=0;
 	
 	
 	SET_DUTY_LEFT(pwm_crt);
@@ -92,7 +93,7 @@ void update_speed(){
 	
 	LED2_TOGGLE;
 	
-	io_printf("%d->%d\n",turatie_crt,pwm_crt);
+	//io_printf("%d->%d\n",turatie_crt,pwm_crt);
 	
 	turatie_crt = 0;
 	PIT_TFLG3 = 1; 						// clear interrupt flag for pit1

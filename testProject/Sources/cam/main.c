@@ -56,7 +56,7 @@ int command = -1;
 int st_challenge = 0;
 int flag_sec;
 unsigned char turatie_crt = 0;
-unsigned char pwm_crt=0;
+int pwm_crt=0;
 unsigned char turatie_ref=0;
 
 
