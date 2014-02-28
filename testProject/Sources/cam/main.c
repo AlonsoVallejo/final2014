@@ -56,6 +56,9 @@ int command = -1;
 int st_challenge = 0;
 int flag_sec;
 unsigned char turatie_crt = 0;
+unsigned char pwm_crt=0;
+unsigned char turatie_ref=0;
+
 
 double PID(int servo);
 double P(double x);
@@ -105,14 +108,6 @@ void main(void) {
 		{
 			got_frame();
 			
-			time_5ms_passed++;
-			if(time_5ms_passed >= 100)
-			{
-				time_5ms_passed = 0;
-				turatie_crt = counter_turatie;
-				counter_turatie = 0;
-				io_printf("tr: %d\n",turatie_crt);
-			}
 			frincu=0;
 		}
 		

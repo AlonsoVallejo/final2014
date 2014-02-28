@@ -19,6 +19,9 @@ short int DEFAULT_STEP = 1;
 extern int brake;
 extern int PWMR_ABS;
 extern int PWML_ABS;
+extern unsigned char turatie_crt;
+extern unsigned char turatie_ref;
+extern unsigned char pwm_crt;
 
 int count_pit0 = 0;
 const unsigned char get_spd(){
@@ -71,15 +74,27 @@ void set_direction(int forw) {
 
 // apelata periodic
 void update_speed(){ 
-	crnt_speed+=DEFAULT_STEP*sign;
-	if (sign<0 && crnt_speed<reference) { crnt_speed = reference; stop_chspeed(); } 
-	if (sign>0 && crnt_speed>reference) { crnt_speed = reference; stop_chspeed(); }
-	SET_DUTY_LEFT(crnt_speed);
-	SET_DUTY_RIGHT(crnt_speed);
 	
-//	SET_DUTY_LEFT(PWML_ABS);
-//	SET_DUTY_RIGHT(PWMR_ABS);
-	LED2_TOGGLE; //STERGE DUPA TESTEEEEEEE!!!!
+	int err = turatie_ref - turatie_crt;
+	if( err > 10 )
+		err = 10 ;
+	if(err < -10)
+		err = -10;
+	if(pwm_crt<(-1)*(TURATIE_TO_PWM(err)))
+			pwm_crt=0;
+	pwm_crt+=TURATIE_TO_PWM(err);
+	if(pwm_crt > 200)
+		pwm_crt = 200;
+	
+	
+	SET_DUTY_LEFT(pwm_crt);
+	SET_DUTY_RIGHT(pwm_crt);
+	
+	LED2_TOGGLE;
+	
+	io_printf("%d->%d\n",turatie_crt,pwm_crt);
+	
+	turatie_crt = 0;
 	PIT_TFLG3 = 1; 						// clear interrupt flag for pit1
 	PIT_TCTRL3 = PIT_TCTRL_TIE_MASK | PIT_TCTRL_TEN_MASK; //workaround to re-enable interrupts
 }
@@ -133,6 +148,10 @@ void init_chspeed() {
 	// set pit interrupt service routine  
 	//disable_irq(71);
 	
+	PIT_LDVAL3 = MS_TO_CLOCKS(200);	
+	PIT_TCTRL3 = PIT_TCTRL_TEN_MASK | PIT_TCTRL_TIE_MASK; //enable pit0
+	PIT_MCR = 1;						// enable module clock	
+		
 	enable_irq(71);
 	
 	crnt_speed = 0;

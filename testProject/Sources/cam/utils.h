@@ -10,6 +10,7 @@ extern uint32_t __vector_table[];
 
 #define MS_TO_CLOCKS(x) 	x*50000
 #define US_TO_CLOCKS(x)		x*50
+#define TURATIE_TO_PWM(x)   x*1
 
 #endif  
 

@@ -3,7 +3,7 @@
 #include "cam.h"
 #include "uart.h"
 #include "gpio.h"
-int counter_turatie = 0;
+extern unsigned char turatie_crt;
 
 void init_uart()
 {
@@ -29,15 +29,17 @@ void init_gpio() {
 		
 	// Setup outputs/inputs
 	GPIOA_PDDR = 0x30000C00;
+	GPIOA_PSOR = 0x30000C00;
 
 	PORTA_PCR16 = PORT_PCR_MUX(1) | PORT_PCR_PE_MASK | PORT_PCR_PS_MASK | PORT_PCR_IRQC(0xa);
 	enable_irq(87);
 }
 
+
 void senzor_turatie(void)
 {
 	//io_printf("NR!\n");
-	counter_turatie++;
+	turatie_crt++;
 	PORTA_ISFR = (1 << 16);
 	LED1_TOGGLE;
 }

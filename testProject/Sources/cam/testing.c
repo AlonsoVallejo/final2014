@@ -13,10 +13,11 @@ extern int count_pit0;
 int demo_state = 0;
 int follow_line = 1;
 //TO DO: adaugare cod PID turatie
-int turatie_ref = 0;
-extern int turatie_crt;
+
+
 extern int DEFAULT_STEP;
 extern int command;
+extern unsigned char turatie_ref;
 
 //for testing servo
 int servo_val;
@@ -29,23 +30,23 @@ void test(char cmd)
 	switch (cmd)
 	{
 	case '1':
-		//init_chspeed();
-		start_chspeed(MS_TO_CLOCKS(1000), 60);
+		turatie_ref = 2;
 		break;
 	case '2':
-		start_chspeed(MS_TO_CLOCKS(1000), 80);
+		turatie_ref = 3;
 		break;
 	case '3':
-		start_chspeed(MS_TO_CLOCKS(1000), 100);
+		turatie_ref = 5;
 		break;
 	case '4':
-		start_chspeed(MS_TO_CLOCKS(1000), 120);
+		turatie_ref = 7;
 		break;
 	case '5':
-		start_chspeed(MS_TO_CLOCKS(2000), 0);
+		turatie_ref = 9;
 		break;
 	case '6':
-		disable_motors();
+		//disable_motors();
+		turatie_ref = 0;
 		break;
 	case '7':
 		out_char('7');
