@@ -32,7 +32,7 @@ void do_brake_to_0();//added by me!!!!
 #define CURVE_OFFSET 4
 
 #define BRAKE_THRESHHOLD 15
-#define LINE_BUF_MAX 100
+#define LINE_BUF_MAX 64
 
 #define THRESHOLD_ACC 25
 #define THRESHOLD_BRAKE 60
@@ -113,7 +113,7 @@ typedef struct log_entry_t
 
 
 //average function for last 20 vals of line pos
-char avg();
+int avg();
 
 // called in cam.c in cam_pit0_isr() before starting to clock out pixels
 void got_frame();

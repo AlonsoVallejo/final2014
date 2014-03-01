@@ -12,7 +12,7 @@
 #include "pwm.h"
 #include "motors.h"
 
-extern unsigned char *cam_prel;
+extern unsigned char *cam_prel;	
 extern unsigned char *cam_prel;
 extern unsigned char camera1_buff[128];
 extern unsigned char camera2_buff[128];
@@ -40,11 +40,11 @@ extern short int reference;
 #define Kd_coef_A 1
 #define Kd_coef_B 1
 
-
-#define K1 6
-#define P1  5
-#define K2  1
-#define P2  1
+//2014
+#define K1 	2
+#define P1  1
+#define K2  0
+#define P2  5
 
 
 #define Kp(x) ((x*Kp_coef_A)/Kp_coef_B)
@@ -113,7 +113,7 @@ extern int servo;
 //bigcount for plotting curve 
 extern uint32 bigcount;
 void set_steering_position();
-
+int u=0;
 
 int need_brake=0;
 const int sum_max=(LINE_BUF_MAX*(LINE_BUF_MAX-1)/2);
@@ -162,13 +162,13 @@ void check_monotony()
 		}
 }
 
-char avg()
+int avg()
 {
 	int i = 0 ;
 	int sum=0  ;
 	int start = head ; 
 	int count = LINE_BUF_MAX ; 
-	char to_print;
+	int to_print;
 	for (;i<LINE_BUF_MAX;i++)
 	{
 		sum+=line_buf[start];//*count;
@@ -176,16 +176,64 @@ char avg()
 		//_|_|_|_|_|_|_
 		start = ((start -1)%LINE_BUF_MAX+LINE_BUF_MAX)%LINE_BUF_MAX;
 	}
-	 to_print= (char) sum/LINE_BUF_MAX;//sum_max;
+	 to_print=  sum/LINE_BUF_MAX;//sum_max;
 	
 	return to_print;
 }
 
+int avg_china()
+{
+	int i = 0 ;
+	int sum=0  ;
+	int start = head ; 
+	int count = LINE_BUF_MAX ; 
+	int to_print;
+	for (;i<LINE_BUF_MAX;i++)
+	{
+		sum+=line_buf[start]*count;
+		count--;
+		//_|_|_|_|_|_|_
+		start = ((start -1)%LINE_BUF_MAX+LINE_BUF_MAX)%LINE_BUF_MAX;
+	}
+	 to_print=  sum/sum_max;
+	
+	return to_print;
+}
 
+void Pi()
+{
+	int head1,line_buf1[128];
+	int error=0;
+	int i;
+	int u1;
+	unsigned long int time = 0;
+	
+	for(i=0;i<32;i++)
+	{
+		line_buf1[i]=0;
+		line_buf1[i+32]=10;
+		line_buf1[i+64]=0;
+		line_buf1[i+96]=-10;
+	}
+	
+	for(head1=1;head1<128;head1++)
+	{
+		//(abs(line_buf[head])/line_buf[head])*
+	error = ((21*line_buf1[head1]) - (20*line_buf1[((head1 -1)%128+128)%128]))/10;
+	u1+=error;
+	for(time =0; time < 2000000;time++)
+	{
+		asm("nop");
+	}
+	io_printf("%d %d %d\n",error,u1,line_buf1[head1]);
+	}
+}
 void got_frame() {
 	
 	int i, edgei = 0;
 	char c = 255;
+	int error;
+	
 
 	// first update time
 	time_5ms++;
@@ -252,7 +300,17 @@ void got_frame() {
 				/*io_printf("%d %d\n",bigcount,line_buf[head]);
 				bigcount++;*/
 				
-				crnt_frame.linepos = ((line_buf[head]*K1)/P1)+(((line_buf[head]-avg())*K2)/P2);
+				error = ((21*line_buf[head]) - (20*line_buf[((head -1)%LINE_BUF_MAX+LINE_BUF_MAX)%LINE_BUF_MAX]))/10;
+				u-=error;
+			
+				crnt_frame.linepos = u;
+				//crnt_frame.linepos = ((line_buf[head]*K1)/P1)+(((line_buf[head]-avg())*K2)/P2);
+				//crnt_frame.linepos = ((avg()*K1)/P1);
+				
+				
+				
+				//io_printf("%d %d %d\n",error,crnt_frame.linepos,line_buf[head]);
+				
 				
 				/*if (abs(line_buf[head]-line_buf[((head -5)%20+20)%20])>BRAKE_THRESHHOLD)
 				{

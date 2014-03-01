@@ -7,7 +7,7 @@
 
 #include "testing.h"
 static int servo;
-
+extern void Pi(void);
 int stopped;
 extern int count_pit0;
 int demo_state = 0;
@@ -36,10 +36,10 @@ void test(char cmd)
 		turatie_ref = 10;
 		break;
 	case '3':
-		turatie_ref = 20;
+		turatie_ref = 30;
 		break;
 	case '4':
-		turatie_ref = 30;
+		turatie_ref = 40;
 		break;
 	case '5':
 		turatie_ref = 40;
@@ -57,7 +57,7 @@ void test(char cmd)
 		SET_SERVO_RIGHT(20);
 		break;
 	case 'c':
-		SET_SERVO_CENTER();
+		Pi();
 		break;
 	case 'a':
 		servo_val-=10;
