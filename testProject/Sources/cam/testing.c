@@ -7,9 +7,10 @@
 
 #include "testing.h"
 static int servo;
-extern void Pi(void);
+
 int stopped;
 extern int count_pit0;
+extern int brake;
 int demo_state = 0;
 int follow_line = 1;
 //TO DO: adaugare cod PID turatie
@@ -36,10 +37,10 @@ void test(char cmd)
 		turatie_ref = 10;
 		break;
 	case '3':
-		turatie_ref = 30;
+		turatie_ref = 20;
 		break;
 	case '4':
-		turatie_ref = 40;
+		turatie_ref = 30;
 		break;
 	case '5':
 		turatie_ref = 40;
@@ -57,7 +58,7 @@ void test(char cmd)
 		SET_SERVO_RIGHT(20);
 		break;
 	case 'c':
-		Pi();
+		SET_SERVO_CENTER();
 		break;
 	case 'a':
 		servo_val-=10;
@@ -68,6 +69,9 @@ void test(char cmd)
 		servo_val+=10;
 		io_printf("%d\n",servo_val);
 		our_set_steering_position();
+		break;
+	case 'b':
+		brake = (brake+1)%2;
 		break;
 		
 		

@@ -89,7 +89,10 @@ void main(void) {
 	init_gpio();
 	
 	init_chspeed(); // motors.c; until PID is available
-	
+	//direction: FORWARD
+	SELECTION_LOW;
+	//motors_enabled
+	enable_motors();
 	// center wheels on start
 	SERVO_MOTOR_VALUE = SERVO_CENTER_PWM;
 	stopped = 1;

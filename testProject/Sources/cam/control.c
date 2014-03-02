@@ -41,10 +41,13 @@ extern short int reference;
 #define Kd_coef_B 1
 
 //2014
-#define K1 	2
-#define P1  1
-#define K2  0
-#define P2  5
+#define K1 	6
+#define P1  5
+#define K2  1
+#define P2  1
+
+#define A0 2
+#define A1 -2
 
 
 #define Kp(x) ((x*Kp_coef_A)/Kp_coef_B)
@@ -205,7 +208,7 @@ void Pi()
 	int head1,line_buf1[128];
 	int error=0;
 	int i;
-	int u1;
+	int u1=0;
 	unsigned long int time = 0;
 	
 	for(i=0;i<32;i++)
@@ -232,7 +235,7 @@ void got_frame() {
 	
 	int i, edgei = 0;
 	char c = 255;
-	int error;
+	int error=0;
 	
 
 	// first update time
@@ -271,12 +274,7 @@ void got_frame() {
 
 	}
 
-/*
-	if (time_50ms == 200) {
-		io_printf("t=%d\n",counter_turatie);
-		counter_turatie = 0;
-		time_50ms = 0;
-	}*/
+
 
 	// proceed to interpreting the edge list
 	crnt_frame.type = FRAME_NONE;
@@ -296,20 +294,26 @@ void got_frame() {
 
 				line_buf[head]= linepos - CENTER_CORRECTION; 
 				
-				//for plotting in matlab
-				/*io_printf("%d %d\n",bigcount,line_buf[head]);
-				bigcount++;*/
-				
-				error = ((21*line_buf[head]) - (20*line_buf[((head -1)%LINE_BUF_MAX+LINE_BUF_MAX)%LINE_BUF_MAX]))/10;
-				u-=error;
 			
-				crnt_frame.linepos = u;
+				
+				//error = 4*line_buf[head]/5 + 4*line_buf[((head -1)%LINE_BUF_MAX+LINE_BUF_MAX)%LINE_BUF_MAX]/5;
+				
+				
+				//crnt_frame.linepos+=A0*line_buf[head]+A1*avg();
+				//line_buf[((head -1)%LINE_BUF_MAX+LINE_BUF_MAX)%LINE_BUF_MAX]
+				
+				 
+				//crnt_frame.linepos =  avg_china()*2/5 + (line_buf[head]-avg_china())*8/5;
 				//crnt_frame.linepos = ((line_buf[head]*K1)/P1)+(((line_buf[head]-avg())*K2)/P2);
 				//crnt_frame.linepos = ((avg()*K1)/P1);
+				error= (line_buf[head]-avg());
+				//error =line_buf[head]- line_buf[((head -1)%LINE_BUF_MAX+LINE_BUF_MAX)%LINE_BUF_MAX] ; 
+				crnt_frame.linepos = ((line_buf[head]*K1)/P1)+ error*(error*error)/50;
+			
+		
 				
 				
-				
-				//io_printf("%d %d %d\n",error,crnt_frame.linepos,line_buf[head]);
+				io_printf("%d %d\n",crnt_frame.linepos,line_buf[head]);
 				
 				
 				/*if (abs(line_buf[head]-line_buf[((head -5)%20+20)%20])>BRAKE_THRESHHOLD)

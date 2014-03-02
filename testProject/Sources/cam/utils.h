@@ -12,6 +12,13 @@ extern uint32_t __vector_table[];
 #define US_TO_CLOCKS(x)		x*50
 #define TURATIE_TO_PWM(x)   x*1
 
+#define OPEN_REACTION 0
+#define ACCELERATE 1
+#define BRAKE_STAGE1 2
+#define BRAKE_STAGE2 3
+
+#define TURATIE_STANDARD 10
+
 #endif  
 
 

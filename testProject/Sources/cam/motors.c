@@ -16,6 +16,7 @@ static short int sign = 0;
 short int reference = 0;
 short int forward = 1; //and 0 brake
 short int DEFAULT_STEP = 1;
+char velocity_state = OPEN_REACTION;
 extern int brake;
 extern int PWMR_ABS;
 extern int PWML_ABS;
@@ -73,28 +74,65 @@ void set_direction(int forw) {
 }
 
 // apelata periodic
-void update_speed(){ 
-	
+void update_speed()
+{ 
 	int err = turatie_ref - turatie_crt;
-	if( err > 10 )
-		err = 10 ;
-	if(err < -10)
-		err = -10;
+	if(turatie_ref !=0 )
+	{
+		switch(velocity_state)
+		{
+		case OPEN_REACTION:
+			if(abs(err) < 4)
+				velocity_state = ACCELERATE;
+			else
+				if(pwm_crt < 200)
+					pwm_crt+=TURATIE_TO_PWM(10);
+			SET_DUTY_LEFT(pwm_crt);
+			SET_DUTY_RIGHT(pwm_crt);
+			break;
+		case ACCELERATE:
+			pwm_crt+=TURATIE_TO_PWM(err);
+			
+			if(pwm_crt > 200)
+				pwm_crt = 200;
+			if(pwm_crt<0)
+				pwm_crt=0;
+			
+			SET_DUTY_LEFT(pwm_crt);
+			SET_DUTY_RIGHT(pwm_crt);
+			if(brake == 1)
+			{
+				disable_motors();
+				SET_DUTY_LEFT(0);
+				SET_DUTY_RIGHT(0);
+				turatie_ref = turatie_ref - 5;
+				velocity_state = BRAKE_STAGE1;
+			}
+			else
+				turatie_ref = TURATIE_STANDARD;
+			break;
+		case BRAKE_STAGE1:
+			enable_motors();
+			MOVE_BACKWARD();
+			SET_DUTY_LEFT(20);
+			SET_DUTY_RIGHT(20);
+			velocity_state = BRAKE_STAGE2;
+			break;
+		case BRAKE_STAGE2:
+			disable_motors();
+			pwm_crt = TURATIE_TO_PWM((turatie_ref));
+			enable_motors();
+			M0VE_FORWARD();
+			velocity_state = ACCELERATE;
+			break;
+		}
+		
+	}
 	
-	pwm_crt+=TURATIE_TO_PWM(err);
-	if(pwm_crt > 200)
-		pwm_crt = 200;
-	if(pwm_crt<0)
-		pwm_crt=0;
 	
-	
-	SET_DUTY_LEFT(pwm_crt);
-	SET_DUTY_RIGHT(pwm_crt);
 	
 	LED2_TOGGLE;
-	
-	//io_printf("%d->%d\n",turatie_crt,pwm_crt);
-	
+	io_printf("s:%d => %d->%d\n",velocity_state,turatie_crt,pwm_crt);
 	turatie_crt = 0;
 	PIT_TFLG3 = 1; 						// clear interrupt flag for pit1
 	PIT_TCTRL3 = PIT_TCTRL_TIE_MASK | PIT_TCTRL_TEN_MASK; //workaround to re-enable interrupts
@@ -149,7 +187,7 @@ void init_chspeed() {
 	// set pit interrupt service routine  
 	//disable_irq(71);
 	
-	PIT_LDVAL3 = MS_TO_CLOCKS(200);	
+	PIT_LDVAL3 = MS_TO_CLOCKS(100);	
 	PIT_TCTRL3 = PIT_TCTRL_TEN_MASK | PIT_TCTRL_TIE_MASK; //enable pit0
 	PIT_MCR = 1;						// enable module clock	
 		
