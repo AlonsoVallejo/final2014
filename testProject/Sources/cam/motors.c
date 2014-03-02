@@ -79,6 +79,7 @@ void update_speed()
 	int err = turatie_ref - turatie_crt;
 	if(turatie_ref !=0 )
 	{
+
 		switch(velocity_state)
 		{
 		case OPEN_REACTION:
@@ -92,7 +93,7 @@ void update_speed()
 			break;
 		case ACCELERATE:
 			pwm_crt+=TURATIE_TO_PWM(err);
-			
+		
 			if(pwm_crt > 200)
 				pwm_crt = 200;
 			if(pwm_crt<0)
@@ -100,36 +101,9 @@ void update_speed()
 			
 			SET_DUTY_LEFT(pwm_crt);
 			SET_DUTY_RIGHT(pwm_crt);
-			if(brake == 1)
-			{
-				disable_motors();
-				SET_DUTY_LEFT(0);
-				SET_DUTY_RIGHT(0);
-				turatie_ref = turatie_ref - 5;
-				velocity_state = BRAKE_STAGE1;
-			}
-			else
-				turatie_ref = TURATIE_STANDARD;
-			break;
-		case BRAKE_STAGE1:
-			enable_motors();
-			MOVE_BACKWARD();
-			SET_DUTY_LEFT(20);
-			SET_DUTY_RIGHT(20);
-			velocity_state = BRAKE_STAGE2;
-			break;
-		case BRAKE_STAGE2:
-			disable_motors();
-			pwm_crt = TURATIE_TO_PWM((turatie_ref));
-			enable_motors();
-			M0VE_FORWARD();
-			velocity_state = ACCELERATE;
 			break;
 		}
-		
 	}
-	
-	
 	
 	LED2_TOGGLE;
 	io_printf("s:%d => %d->%d\n",velocity_state,turatie_crt,pwm_crt);

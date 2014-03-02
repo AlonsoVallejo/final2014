@@ -58,6 +58,8 @@ int flag_sec;
 unsigned char turatie_crt = 0;
 int pwm_crt=0;
 unsigned char turatie_ref=0;
+extern unsigned char velocity_state;
+
 
 
 double PID(int servo);
@@ -110,7 +112,31 @@ void main(void) {
 		if(frincu)
 		{
 			got_frame();
-			
+			switch(velocity_state)
+			{
+			case BRAKE_STAGE0:
+				SET_DUTY_LEFT(0);
+				SET_DUTY_RIGHT(0);
+				disable_motors();
+				turatie_ref = turatie_ref/2;
+				velocity_state = BRAKE_STAGE1;
+				break;
+			case BRAKE_STAGE1:
+				enable_motors();
+				MOVE_BACKWARD();
+				SET_DUTY_LEFT(20);
+				SET_DUTY_RIGHT(20);
+				velocity_state = BRAKE_STAGE2;
+				break;
+			case BRAKE_STAGE2:
+				disable_motors();
+				pwm_crt = TURATIE_TO_PWM((turatie_ref*10));
+				enable_motors();
+				M0VE_FORWARD();
+				brake = 0;
+				velocity_state = ACCELERATE;
+				break;
+			}
 			frincu=0;
 		}
 		

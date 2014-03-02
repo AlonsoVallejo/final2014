@@ -19,6 +19,7 @@ int follow_line = 1;
 extern int DEFAULT_STEP;
 extern int command;
 extern unsigned char turatie_ref;
+extern unsigned char velocity_state;
 extern int pwm_crt;
 //for testing servo
 int servo_val;
@@ -71,7 +72,7 @@ void test(char cmd)
 		our_set_steering_position();
 		break;
 	case 'b':
-		brake = (brake+1)%2;
+		velocity_state = BRAKE_STAGE0;
 		break;
 		
 		

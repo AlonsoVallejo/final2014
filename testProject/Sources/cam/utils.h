@@ -14,8 +14,9 @@ extern uint32_t __vector_table[];
 
 #define OPEN_REACTION 0
 #define ACCELERATE 1
-#define BRAKE_STAGE1 2
-#define BRAKE_STAGE2 3
+#define BRAKE_STAGE0 2
+#define BRAKE_STAGE1 3
+#define BRAKE_STAGE2 4
 
 #define TURATIE_STANDARD 10
 
