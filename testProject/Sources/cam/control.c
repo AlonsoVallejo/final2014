@@ -49,10 +49,20 @@ extern short int reference;
 #define A0 2
 #define A1 -2
 
+//first working pid
+//calculated via matlab 
+//change for fine tunning
+#define N  512 
+#define  Ki (N*3/20)
+#define  Kp  (2*N) 
+#define Kd  (1*N/100 )
+//must remain constant
+const int  a0 =Kp + Ki/200+Kd*200;
+const int a1 =(-Kp)-2*Kd*200;
+const int a2 =(Kd)*200;  
 
-#define Kp(x) ((x*Kp_coef_A)/Kp_coef_B)
-#define Ki() ((integral()*Ki_coef_A)/Ki_coef_B)
-#define Kd() ((derivative()*Kd_coef_A)/Kd_coef_B)/// derivative trebuie implementat
+
+
 double PID(int servo);
 double P(double x);
 double I();
@@ -124,6 +134,9 @@ int  line_buf[LINE_BUF_MAX]={0};
 int head =0 ; 
 int show_it = 0;
 int state = 0  ; 
+
+//for testing pid 
+int prev_err = 0 ; 
 
 void check_monotony()
 {
@@ -231,6 +244,15 @@ void Pi()
 	io_printf("%d %d %d\n",error,u1,line_buf1[head1]);
 	}
 }
+
+
+void inline  my_PID ()
+{
+	//io_printf("%d %d %d #\n",a0,a1,a2);
+	u+= (a0*line_buf[head]+ a1*line_buf[((head -1)%LINE_BUF_MAX+LINE_BUF_MAX)%LINE_BUF_MAX]+
+			a2*line_buf[((head -2)%LINE_BUF_MAX+LINE_BUF_MAX)%LINE_BUF_MAX])/N;
+}
+
 void got_frame() {
 	
 	int i, edgei = 0;
@@ -293,29 +315,13 @@ void got_frame() {
 					crnt_frame.type = FRAME_ERROR; // if not its a malformed frame
 
 				line_buf[head]= linepos - CENTER_CORRECTION; 
-				
-			
-				
-				//error = 4*line_buf[head]/5 + 4*line_buf[((head -1)%LINE_BUF_MAX+LINE_BUF_MAX)%LINE_BUF_MAX]/5;
-				
-				
-				//crnt_frame.linepos+=A0*line_buf[head]+A1*avg();
-				//line_buf[((head -1)%LINE_BUF_MAX+LINE_BUF_MAX)%LINE_BUF_MAX]
-				
-				 
-				//crnt_frame.linepos =  avg_china()*2/5 + (line_buf[head]-avg_china())*8/5;
+				//worked at freescale 
 				//crnt_frame.linepos = ((line_buf[head]*K1)/P1)+(((line_buf[head]-avg())*K2)/P2);
-				//crnt_frame.linepos = ((avg()*K1)/P1);
-				error= (line_buf[head]-avg());
-				//error =line_buf[head]- line_buf[((head -1)%LINE_BUF_MAX+LINE_BUF_MAX)%LINE_BUF_MAX] ; 
-				crnt_frame.linepos = ((line_buf[head]*K1)/P1)+ error*(error*error)/50;
-			
-		
 				
-				
-				io_printf("%d %d\n",crnt_frame.linepos,line_buf[head]);
-				
-				
+				//newly developed modifies u 
+				my_PID ();
+				crnt_frame.linepos = u ; 
+				//io_printf("%d %d %d\n",crnt_frame.linepos,line_buf[head],u);
 				/*if (abs(line_buf[head]-line_buf[((head -5)%20+20)%20])>BRAKE_THRESHHOLD)
 				{
 					need_brake = (need_brake+1)%2 +1;
