@@ -135,6 +135,12 @@ int head =0 ;
 int show_it = 0;
 int state = 0  ; 
 
+extern unsigned char turatie_ref;
+extern int pwm_crt;
+int prevStartTime = 0; //timpul de aparitie al frame-ului anterior de start
+int firstLineDetection = 1; // variabila pentru pornirea masinutei daca prima oara se detecteaza frame de linie si nu de start
+int startCounter = 0; //pentru contorizarea frame-urilor de start
+
 //for testing pid 
 int prev_err = 0 ; 
 
@@ -296,8 +302,6 @@ void got_frame() {
 
 	}
 
-
-
 	// proceed to interpreting the edge list
 	crnt_frame.type = FRAME_NONE;
 	crnt_frame.linepos = 0;
@@ -358,10 +362,28 @@ void got_frame() {
 		break;
 	case FRAME_ERROR:
 		last_error_time = time_5ms;
+		io_printf("e\n");
 		break;
 	case FRAME_START:
-		last_start_time = time_5ms;
-		disable_motors();
+		//last_start_time = time_5ms;
+		io_printf("s\n");
+		//daca nu mai capturasem niciun frame de start
+		if(time_5ms - prevStartTime > 7)
+		{
+			startCounter++;
+			io_printf("s:%d - %d - %d\n", startCounter, time_5ms, prevStartTime);
+			prevStartTime = time_5ms;
+			
+			if(startCounter == 2)
+			{
+				disable_motors();
+				turatie_ref = 0;
+				pwm_crt=0;
+				
+				//pentru testare (sa se poata lua de la capat fara a trebui reset)
+				startCounter = 0;
+			}
+		}
 		break;
 	case FRAME_LINE:
 		last_line_time = time_5ms;

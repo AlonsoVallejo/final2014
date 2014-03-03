@@ -106,7 +106,7 @@ void update_speed()
 	}
 	
 	LED2_TOGGLE;
-	io_printf("s:%d => %d->%d\n",velocity_state,turatie_crt,pwm_crt);
+	//io_printf("s:%d => %d->%d\n",velocity_state,turatie_crt,pwm_crt);
 	turatie_crt = 0;
 	PIT_TFLG3 = 1; 						// clear interrupt flag for pit1
 	PIT_TCTRL3 = PIT_TCTRL_TIE_MASK | PIT_TCTRL_TEN_MASK; //workaround to re-enable interrupts
