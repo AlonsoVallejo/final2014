@@ -52,10 +52,10 @@ extern short int reference;
 //first working pid
 //calculated via matlab 
 //change for fine tunning
-#define N  512 
-#define  Ki (N*3/20)
+#define N  2048 
+#define  Ki (N*0/10)
 #define  Kp  (2*N) 
-#define Kd  (1*N/100 )
+#define Kd  (1*N/200 )
 //must remain constant
 const int  a0 =Kp + Ki/200+Kd*200;
 const int a1 =(-Kp)-2*Kd*200;

@@ -69,6 +69,7 @@ double D();
 
 extern int need_brake;
 extern int frincu;
+char braking_persist = 0;
 
 void main(void) {
 	int i, abs_camerror, abs_camerror_before , speed ;
@@ -126,7 +127,12 @@ void main(void) {
 				MOVE_BACKWARD();
 				SET_DUTY_LEFT(20);
 				SET_DUTY_RIGHT(20);
-				velocity_state = BRAKE_STAGE2;
+				braking_persist++;
+				if(braking_persist == 20)
+					{
+						velocity_state = BRAKE_STAGE2;
+						braking_persist = 0;
+					}
 				break;
 			case BRAKE_STAGE2:
 				disable_motors();
