@@ -20,6 +20,7 @@ extern uint32_t __vector_table[];
 
 #define TURATIE_STANDARD 10
 
+
 #endif  
 
 

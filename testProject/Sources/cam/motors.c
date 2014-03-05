@@ -24,6 +24,22 @@ extern unsigned char turatie_crt;
 extern unsigned char turatie_ref;
 extern int pwm_crt;
 
+//2014
+#define NM 2048
+#define K1 	(3*NM)
+#define K2  (1*NM)
+#define K3  (1*NM)
+
+
+const int  b0 =K1 + K2/5+K3*5;
+const int b1 =(-K1)-2*K3*5;
+const int b2 =(K3)*5; 
+
+int comm = 0;
+int et1 = 0;
+int et2 = 0;
+
+
 int count_pit0 = 0;
 const unsigned char get_spd(){
 	return crnt_speed;
@@ -73,13 +89,20 @@ void set_direction(int forw) {
 	}
 }
 
+void inline velocity_pid(int error)
+{
+	//pwm_crt+= (b0*error+ b1*et1+ b2*et2)/NM;
+	//et2 = et1;
+	//et1 = error;
+	pwm_crt+=error;
+}
+
 // apelata periodic
 void update_speed()
 { 
 	int err = turatie_ref - turatie_crt;
 	if(turatie_ref !=0 )
 	{
-
 		switch(velocity_state)
 		{
 		case OPEN_REACTION:
@@ -92,13 +115,13 @@ void update_speed()
 			SET_DUTY_RIGHT(pwm_crt);
 			break;
 		case ACCELERATE:
-			pwm_crt+=TURATIE_TO_PWM(err);
+			velocity_pid(err);
 		
 			if(pwm_crt > 200)
 				pwm_crt = 200;
 			if(pwm_crt<0)
 				pwm_crt=0;
-			
+			io_printf("T:%d R:%d P:%d\n",turatie_crt,turatie_ref,pwm_crt);
 			SET_DUTY_LEFT(pwm_crt);
 			SET_DUTY_RIGHT(pwm_crt);
 			break;
@@ -161,7 +184,7 @@ void init_chspeed() {
 	// set pit interrupt service routine  
 	//disable_irq(71);
 	
-	PIT_LDVAL3 = MS_TO_CLOCKS(100);	
+	PIT_LDVAL3 = MS_TO_CLOCKS(50);	
 	PIT_TCTRL3 = PIT_TCTRL_TEN_MASK | PIT_TCTRL_TIE_MASK; //enable pit0
 	PIT_MCR = 1;						// enable module clock	
 		

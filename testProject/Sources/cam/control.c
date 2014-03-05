@@ -40,11 +40,6 @@ extern short int reference;
 #define Kd_coef_A 1
 #define Kd_coef_B 1
 
-//2014
-#define K1 	6
-#define P1  5
-#define K2  1
-#define P2  1
 
 #define A0 2
 #define A1 -2
@@ -53,9 +48,9 @@ extern short int reference;
 //calculated via matlab 
 //change for fine tunning
 #define N  2048 
-#define  Ki (N*0/10)
+#define  Ki (N*0)
 #define  Kp  (2*N) 
-#define Kd  (1*N/200 )
+#define Kd  (1*0 )
 //must remain constant
 const int  a0 =Kp + Ki/200+Kd*200;
 const int a1 =(-Kp)-2*Kd*200;
@@ -136,6 +131,7 @@ int show_it = 0;
 int state = 0  ; 
 
 extern unsigned char turatie_ref;
+extern char velocity_state;
 extern int pwm_crt;
 int prevStartTime = 0; //timpul de aparitie al frame-ului anterior de start
 int firstLineDetection = 1; // variabila pentru pornirea masinutei daca prima oara se detecteaza frame de linie si nu de start
@@ -143,6 +139,13 @@ int startCounter = 0; //pentru contorizarea frame-urilor de start
 
 //for testing pid 
 int prev_err = 0 ; 
+
+
+//pentru curba automata
+int servo_center_detected=0;
+int servo_curve_detected = 0;
+unsigned char in_curve = 0;
+
 
 void check_monotony()
 {
@@ -259,6 +262,41 @@ void inline  my_PID ()
 			a2*line_buf[((head -2)%LINE_BUF_MAX+LINE_BUF_MAX)%LINE_BUF_MAX])/N;
 }
 
+void update_track_info()
+{
+	my_PID ();
+	crnt_frame.linepos = u ; 
+	
+
+	if(abs(crnt_frame.linepos)>15)
+	{
+		if(in_curve == 0)
+			servo_curve_detected++;
+		servo_center_detected=0;
+		if(servo_curve_detected == 10)
+		{
+			velocity_state = BRAKE_STAGE0;
+			in_curve = 1;
+			io_printf("c\n");
+			servo_curve_detected++;
+		}
+	}
+	else
+	{
+		if(in_curve == 1)
+			servo_center_detected++;
+		servo_curve_detected=0;
+		if(servo_center_detected == 20)
+		{
+			//velocity_state = ACCELERATE;
+			turatie_ref = 20;
+			in_curve=0;
+			io_printf("l\n");
+			servo_center_detected++;
+		}
+	}
+}
+
 void got_frame() {
 	
 	int i, edgei = 0;
@@ -270,7 +308,7 @@ void got_frame() {
 	time_5ms++;
 	time_50ms++;
 	
-	time_2s_aux++;
+	/*time_2s_aux++;
 	if (time_2s_aux == 200) {
 		time_2s_aux = 0;
 		sw++;
@@ -279,9 +317,8 @@ void got_frame() {
 		}
 	}
 
-	count_pit0++;
-	
-	our_set_steering_position();
+	count_pit0++;*/
+
 	//detect edges in frame using a threshold of the derivative
 	for (i = MARGIN + OFFSET; i < 128 - MARGIN; i += 1) {
 		dc = cam_prel[i] - cam_prel[i - OFFSET];
@@ -312,27 +349,16 @@ void got_frame() {
 					- OFFSET_CORRECTION;
 			linewidth = edge_pos[i] - edge_pos[i - 1];
 			
-			if (linewidth > LINE_MIN_WIDTH && linewidth < LINE_MAX_WIDTH) {
-				if (crnt_frame.type == FRAME_NONE) // check if it is the first line of the desired width 
-					crnt_frame.type = FRAME_LINE;
-				else
-					crnt_frame.type = FRAME_ERROR; // if not its a malformed frame
+		if (linewidth > LINE_MIN_WIDTH && linewidth < LINE_MAX_WIDTH) {
+			if (crnt_frame.type == FRAME_NONE) // check if it is the first line of the desired width 
+				crnt_frame.type = FRAME_LINE;
+			else
+				crnt_frame.type = FRAME_ERROR; // if not its a malformed frame
 
-				line_buf[head]= linepos - CENTER_CORRECTION; 
-				//worked at freescale 
-				//crnt_frame.linepos = ((line_buf[head]*K1)/P1)+(((line_buf[head]-avg())*K2)/P2);
-				
-				//newly developed modifies u 
-				my_PID ();
-				crnt_frame.linepos = u ; 
-				//io_printf("%d %d %d\n",crnt_frame.linepos,line_buf[head],u);
-				/*if (abs(line_buf[head]-line_buf[((head -5)%20+20)%20])>BRAKE_THRESHHOLD)
-				{
-					need_brake = (need_brake+1)%2 +1;
-				}*/
-				
-				head=(head+1)%LINE_BUF_MAX;
-				
+			//worked at freescale 
+			//crnt_frame.linepos = ((line_buf[head]*K1)/P1)+(((line_buf[head]-avg())*K2)/P2);
+			//crnt_frame.linepos += line_buf[head]-avg_china();
+			//newly developed modifies u 			
 				
 				/*if(show_it == 10)
 				{
@@ -341,13 +367,16 @@ void got_frame() {
 				}
 				show_it++;
 				*/
-				
+			line_buf[head]= linepos - CENTER_CORRECTION;
+			update_track_info();
+			our_set_steering_position();
+			head=(head+1)%LINE_BUF_MAX;
 						//+((linepos-CENTER_CORRECTION)/abs(linepos-CENTER_CORRECTION))*CURVE_OFFSET;
-				if (code == 1)
-					code = 2;
-				else
-					code = 0;
-			}
+		if (code == 1)
+			code = 2;
+		else
+			code = 0;
+		}
 		} else if (edge_type[i - 1] > 0 && edge_type[i] < 0) {
 			linewidth = edge_pos[i] - edge_pos[i - 1];
 			if (linewidth > MIN_START_GAP && linewidth < MAX_START_GAP) {
@@ -362,30 +391,32 @@ void got_frame() {
 		break;
 	case FRAME_ERROR:
 		last_error_time = time_5ms;
-		io_printf("e\n");
+		//io_printf("e\n");
 		break;
 	case FRAME_START:
 		//last_start_time = time_5ms;
-		io_printf("s\n");
+		//io_printf("s\n");
 		//daca nu mai capturasem niciun frame de start
-		if(time_5ms - prevStartTime > 7)
+		/*if(time_5ms - prevStartTime > 7)
 		{
 			startCounter++;
-			io_printf("s:%d - %d - %d\n", startCounter, time_5ms, prevStartTime);
+		//	io_printf("s:%d - %d - %d\n", startCounter, time_5ms, prevStartTime);
 			prevStartTime = time_5ms;
 			
 			if(startCounter == 2)
 			{
-				disable_motors();
+				//disable_motors();
 				turatie_ref = 0;
 				pwm_crt=0;
 				
 				//pentru testare (sa se poata lua de la capat fara a trebui reset)
 				startCounter = 0;
 			}
-		}
+		}*/
 		break;
 	case FRAME_LINE:
+		//line_buf[head]= linepos - CENTER_CORRECTION; 
+		//head=(head+1)%LINE_BUF_MAX;
 		last_line_time = time_5ms;
 		break;
 	}
@@ -485,10 +516,10 @@ int our_set_steering_position()
 	int x;
 	line_error_val = crnt_frame.linepos;
 		if (crnt_frame.linepos < 0 /*&& CURVE_THRESHOLD < line_error_val*/) {
-			servo = crnt_frame.linepos;
+			servo =  crnt_frame.linepos;
 			SET_SERVO_LEFT(-servo);
 		} else if (crnt_frame.linepos > 0 /*&& CURVE_THRESHOLD < line_error_val*/) {
-			servo = crnt_frame.linepos;
+			servo =  crnt_frame.linepos;
 			SET_SERVO_RIGHT(servo);
 		}
 		prev_error = line_error_val;

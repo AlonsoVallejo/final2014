@@ -35,16 +35,16 @@ void test(char cmd)
 		turatie_ref = 5;
 		break;
 	case '2':
-		turatie_ref = 10;
+		turatie_ref = 20;
 		break;
 	case '3':
-		turatie_ref = 20;
+		turatie_ref = 25;
 		break;
 	case '4':
 		turatie_ref = 30;
 		break;
 	case '5':
-		turatie_ref = 40;
+		turatie_ref = 35;
 		break;
 	case '6':
 		disable_motors();

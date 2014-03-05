@@ -71,6 +71,8 @@ extern int need_brake;
 extern int frincu;
 char braking_persist = 0;
 
+extern void update_track_info();
+
 void main(void) {
 	int i, abs_camerror, abs_camerror_before , speed ;
 	int sending;//pentru a trimite frame
@@ -119,7 +121,7 @@ void main(void) {
 				SET_DUTY_LEFT(0);
 				SET_DUTY_RIGHT(0);
 				disable_motors();
-				turatie_ref = turatie_ref/2;
+				turatie_ref = 10;
 				velocity_state = BRAKE_STAGE1;
 				break;
 			case BRAKE_STAGE1:
@@ -128,19 +130,20 @@ void main(void) {
 				SET_DUTY_LEFT(20);
 				SET_DUTY_RIGHT(20);
 				braking_persist++;
-				if(braking_persist == 20)
-					{
-						velocity_state = BRAKE_STAGE2;
-						braking_persist = 0;
-					}
+				if(braking_persist == 7)//To Do: dependent de viteza
+				{
+					velocity_state = BRAKE_STAGE2;
+					braking_persist = 0;
+				}
 				break;
 			case BRAKE_STAGE2:
 				disable_motors();
-				pwm_crt = TURATIE_TO_PWM((turatie_ref*10));
+				pwm_crt = TURATIE_TO_PWM(turatie_ref+30);///TO DO: update +30 to something little more tech.
 				enable_motors();
 				M0VE_FORWARD();
-				brake = 0;
 				velocity_state = ACCELERATE;
+				
+				
 				break;
 			}
 			frincu=0;
