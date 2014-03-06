@@ -11,7 +11,7 @@
 #include "utils.h"
 #include "pwm.h"
 #include "motors.h"
-
+unsigned char in_curve = 0;
 extern unsigned char *cam_prel;	
 extern unsigned char *cam_prel;
 extern unsigned char camera1_buff[128];
@@ -48,13 +48,13 @@ extern short int reference;
 //calculated via matlab 
 //change for fine tunning
 #define  N  2048 
-#define  Ki  (N*0)
-#define  Kp  (2*N) 
-#define  Kd  (1*0 )
+#define  Ki   0 //(N*7/6)
+#define  Kp  (2*N)
+#define  Kd   0 //(1*N/200 )
 //must remain constant
-const int  a0 =Kp + Ki/200+Kd*200;
-const int a1 =(-Kp)-2*Kd*200;
-const int a2 =(Kd)*200;  
+int a0 =Kp + Ki/200+Kd*200;
+int a1 =(-Kp)-2*Kd*200;
+int a2 =(Kd)*200;   
 
 unsigned char config = 0 ; 
 
@@ -139,11 +139,11 @@ int firstLineDetection = 1; // variabila pentru pornirea masinutei daca prima oa
 int startCounter = 0; //pentru contorizarea frame-urilor de start
 
 
-const unsigned char scenarios[3][3]={{10,5,5},{5,3,3},{5,5,0}};
+const unsigned char scenarios[3][3]={{20,15,7},{17,13,5},{17,17,0}};
 //pentru curba automata
 int servo_center_detected=0;
 int servo_curve_detected = 0;
-unsigned char in_curve = 0;
+
 
 void check_monotony()
 {
@@ -258,6 +258,9 @@ void inline  my_PID ()
 	//io_printf("%d %d %d #\n",a0,a1,a2);
 	u+= (a0*line_buf[head]+ a1*line_buf[((head -1)%LINE_BUF_MAX+LINE_BUF_MAX)%LINE_BUF_MAX]+
 			a2*line_buf[((head -2)%LINE_BUF_MAX+LINE_BUF_MAX)%LINE_BUF_MAX])/N;
+	
+	/*u = Kp*(line_buf[head ] + (line_buf[head] - avg_china()));*/
+	
 }
 
 void update_track_info()
@@ -272,28 +275,32 @@ void update_track_info()
 			if(in_curve == 0)
 				servo_curve_detected++;
 			servo_center_detected=0;
-			if(servo_curve_detected == 10)
+			if(servo_curve_detected == 7)
 			{
 				velocity_state = BRAKE_STAGE0;
 				in_curve = 1;
 				//io_printf("c\n");
 				servo_curve_detected++;
+				//crnt_frame.linepos = 2*line_buf[head]; //TO RESET PID
+				//u = 2 * line_buf[head];
 			}
 		}
 		else
 		{
-			if(in_curve == 1)
-				servo_center_detected++;
-			servo_curve_detected=0;
-			if(servo_center_detected == 20)
-			{
-				//velocity_state = ACCELERATE;
-				turatie_ref = scenarios[config][ACCH_INDEX];
-				in_curve=0;
-				pwm_crt=5*turatie_ref; //TO DO: iuli s-a linistit
-				//io_printf("l\n");
-				servo_center_detected++;
-			}
+			
+				if(in_curve == 1)
+					servo_center_detected++;
+				servo_curve_detected=0;
+				if(servo_center_detected == 15)
+				{
+					//velocity_state = ACCELERATE;
+					turatie_ref = scenarios[config][ACCH_INDEX];
+					in_curve=0;
+					pwm_crt=5*turatie_ref; //TO DO: iuli s-a linistit
+					//io_printf("l\n");
+					servo_center_detected++;
+				}
+			
 		}
 	}
 }
@@ -395,6 +402,7 @@ void got_frame() {
 		break;
 	case FRAME_START:
 		//last_start_time = time_5ms;
+		/*
 		io_printf("s\n");
 		//daca nu mai capturasem niciun frame de start
 		if(time_5ms - prevStartTime > 300)
@@ -419,6 +427,7 @@ void got_frame() {
 				enable_motors();
 			}
 		}
+		*/
 		break;
 	case FRAME_LINE:
 		//line_buf[head]= linepos - CENTER_CORRECTION; 

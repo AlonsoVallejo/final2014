@@ -115,7 +115,7 @@ void update_speed()
 				velocity_state = ACCELERATE;
 			else
 				if(pwm_crt < 200)
-					pwm_crt+=TURATIE_TO_PWM(10);
+					pwm_crt+=TURATIE_TO_PWM(5);
 			SET_DUTY_LEFT(pwm_crt);
 			SET_DUTY_RIGHT(pwm_crt);
 			break;
@@ -134,7 +134,7 @@ void update_speed()
 	else
 	{
 		start_timer++; 
-		if (start_timer >= 200 )
+		if (start_timer >= 100 )
 		{
 			turatie_ref = scenarios[config][ACCH_INDEX];
 			start_timer = 0 ; 

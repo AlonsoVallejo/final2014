@@ -61,6 +61,7 @@ unsigned char turatie_ref=0;
 extern unsigned char velocity_state;
 unsigned char old_turatie_crt =0;
 extern unsigned char config;
+#define BREAK_PWM 70
 
 double PID(int servo);
 double P(double x);
@@ -128,8 +129,8 @@ void main(void) {
 			case BRAKE_STAGE1:
 				enable_motors();
 				MOVE_BACKWARD();
-				SET_DUTY_LEFT(20);
-				SET_DUTY_RIGHT(20);
+				SET_DUTY_LEFT(BREAK_PWM);
+				SET_DUTY_RIGHT(BREAK_PWM);
 				braking_persist++;
 				if(braking_persist == scenarios[config][BRK_INDEX])//To Do: dependent de viteza
 				{
@@ -139,7 +140,7 @@ void main(void) {
 				break;
 			case BRAKE_STAGE2:
 				disable_motors();
-				pwm_crt = TURATIE_TO_PWM(turatie_ref+30);///TO DO: update +30 to something little more tech.
+				pwm_crt = TURATIE_TO_PWM(turatie_ref*3);///TO DO: update +30 to something little more tech.
 				enable_motors();
 				M0VE_FORWARD();
 				velocity_state = ACCELERATE;
