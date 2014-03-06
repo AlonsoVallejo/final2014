@@ -47,15 +47,16 @@ extern short int reference;
 //first working pid
 //calculated via matlab 
 //change for fine tunning
-#define N  2048 
-#define  Ki (N*0)
+#define  N  2048 
+#define  Ki  (N*0)
 #define  Kp  (2*N) 
-#define Kd  (1*0 )
+#define  Kd  (1*0 )
 //must remain constant
 const int  a0 =Kp + Ki/200+Kd*200;
 const int a1 =(-Kp)-2*Kd*200;
 const int a2 =(Kd)*200;  
 
+unsigned char config = 0 ; 
 
 
 double PID(int servo);
@@ -137,15 +138,12 @@ int prevStartTime = 0; //timpul de aparitie al frame-ului anterior de start
 int firstLineDetection = 1; // variabila pentru pornirea masinutei daca prima oara se detecteaza frame de linie si nu de start
 int startCounter = 0; //pentru contorizarea frame-urilor de start
 
-//for testing pid 
-int prev_err = 0 ; 
 
-
+const unsigned char scenarios[3][3]={{10,5,5},{5,3,3},{5,5,0}};
 //pentru curba automata
 int servo_center_detected=0;
 int servo_curve_detected = 0;
 unsigned char in_curve = 0;
-
 
 void check_monotony()
 {
@@ -267,32 +265,35 @@ void update_track_info()
 	my_PID ();
 	crnt_frame.linepos = u ; 
 	
-
-	if(abs(crnt_frame.linepos)>15)
+	if(scenarios[config][BRK_INDEX] != 0)
 	{
-		if(in_curve == 0)
-			servo_curve_detected++;
-		servo_center_detected=0;
-		if(servo_curve_detected == 10)
+		if(abs(crnt_frame.linepos)>15)
 		{
-			velocity_state = BRAKE_STAGE0;
-			in_curve = 1;
-			io_printf("c\n");
-			servo_curve_detected++;
+			if(in_curve == 0)
+				servo_curve_detected++;
+			servo_center_detected=0;
+			if(servo_curve_detected == 10)
+			{
+				velocity_state = BRAKE_STAGE0;
+				in_curve = 1;
+				//io_printf("c\n");
+				servo_curve_detected++;
+			}
 		}
-	}
-	else
-	{
-		if(in_curve == 1)
-			servo_center_detected++;
-		servo_curve_detected=0;
-		if(servo_center_detected == 20)
+		else
 		{
-			//velocity_state = ACCELERATE;
-			turatie_ref = 20;
-			in_curve=0;
-			io_printf("l\n");
-			servo_center_detected++;
+			if(in_curve == 1)
+				servo_center_detected++;
+			servo_curve_detected=0;
+			if(servo_center_detected == 20)
+			{
+				//velocity_state = ACCELERATE;
+				turatie_ref = scenarios[config][ACCH_INDEX];
+				in_curve=0;
+				pwm_crt=5*turatie_ref; //TO DO: iuli s-a linistit
+				//io_printf("l\n");
+				servo_center_detected++;
+			}
 		}
 	}
 }
@@ -345,8 +346,7 @@ void got_frame() {
 	code = 0; // 1 - up 2 -down 3 -up 4 (edges)
 	for (i = 1; i < edgei; i += 1)
 		if (edge_type[i - 1] < 0 && edge_type[i] > 0) {
-			linepos = (edge_pos[i] + edge_pos[i - 1]) / 2 - 64
-					- OFFSET_CORRECTION;
+			linepos = (edge_pos[i] + edge_pos[i - 1]) / 2 - 64 - OFFSET_CORRECTION;
 			linewidth = edge_pos[i] - edge_pos[i - 1];
 			
 		if (linewidth > LINE_MIN_WIDTH && linewidth < LINE_MAX_WIDTH) {
@@ -395,24 +395,30 @@ void got_frame() {
 		break;
 	case FRAME_START:
 		//last_start_time = time_5ms;
-		//io_printf("s\n");
+		io_printf("s\n");
 		//daca nu mai capturasem niciun frame de start
-		/*if(time_5ms - prevStartTime > 7)
+		if(time_5ms - prevStartTime > 300)
 		{
 			startCounter++;
-		//	io_printf("s:%d - %d - %d\n", startCounter, time_5ms, prevStartTime);
+			io_printf("s:%d - %d - %d\n", startCounter, time_5ms, prevStartTime);
 			prevStartTime = time_5ms;
 			
 			if(startCounter == 2)
 			{
-				//disable_motors();
+				disable_motors();
 				turatie_ref = 0;
 				pwm_crt=0;
 				
 				//pentru testare (sa se poata lua de la capat fara a trebui reset)
 				startCounter = 0;
 			}
-		}*/
+			else
+			{
+				velocity_state = OPEN_REACTION ; 
+				turatie_ref = scenarios[config][ACCH_INDEX];
+				enable_motors();
+			}
+		}
 		break;
 	case FRAME_LINE:
 		//line_buf[head]= linepos - CENTER_CORRECTION; 

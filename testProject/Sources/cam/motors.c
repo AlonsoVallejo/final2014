@@ -23,15 +23,17 @@ extern int PWML_ABS;
 extern unsigned char turatie_crt;
 extern unsigned char turatie_ref;
 extern int pwm_crt;
+extern unsigned char old_turatie_crt;
+extern int config;
 
 //2014
 #define NM 2048
 #define K1 	(3*NM)
 #define K2  (1*NM)
-#define K3  (1*NM)
+#define K3  (1*NM/10)
 
 
-const int  b0 =K1 + K2/5+K3*5;
+const int b0 = K1 + K2/5+K3*5;
 const int b1 =(-K1)-2*K3*5;
 const int b2 =(K3)*5; 
 
@@ -39,7 +41,8 @@ int comm = 0;
 int et1 = 0;
 int et2 = 0;
 
-
+extern const unsigned char scenarios[3][3];
+int start_timer = 0 ; 
 int count_pit0 = 0;
 const unsigned char get_spd(){
 	return crnt_speed;
@@ -50,12 +53,12 @@ const unsigned char get_reference() {
 	return reference ;
 }
 
-void disable_motors() {
+void inline disable_motors() {
 	ENDL_LOW;
 	ENDR_LOW;
 }
 
-void enable_motors() {
+void inline enable_motors() {
 	ENDL_HIGH;
 	ENDR_HIGH;
 }
@@ -94,13 +97,15 @@ void inline velocity_pid(int error)
 	//pwm_crt+= (b0*error+ b1*et1+ b2*et2)/NM;
 	//et2 = et1;
 	//et1 = error;
-	pwm_crt+=error;
+	
+	pwm_crt+=error;//the most empiric regulator
 }
 
 // apelata periodic
 void update_speed()
 { 
 	int err = turatie_ref - turatie_crt;
+	
 	if(turatie_ref !=0 )
 	{
 		switch(velocity_state)
@@ -116,18 +121,29 @@ void update_speed()
 			break;
 		case ACCELERATE:
 			velocity_pid(err);
-		
+			//io_printf("T:%d R:%d P:%d\n",turatie_crt,turatie_ref,pwm_crt);
 			if(pwm_crt > 200)
 				pwm_crt = 200;
 			if(pwm_crt<0)
 				pwm_crt=0;
-			io_printf("T:%d R:%d P:%d\n",turatie_crt,turatie_ref,pwm_crt);
 			SET_DUTY_LEFT(pwm_crt);
 			SET_DUTY_RIGHT(pwm_crt);
 			break;
 		}
 	}
+	else
+	{
+		start_timer++; 
+		if (start_timer >= 200 )
+		{
+			turatie_ref = scenarios[config][ACCH_INDEX];
+			start_timer = 0 ; 
+			enable_motors();
+			velocity_state = OPEN_REACTION ; 
+		}
+	}
 	
+	old_turatie_crt =  turatie_crt;
 	LED2_TOGGLE;
 	//io_printf("s:%d => %d->%d\n",velocity_state,turatie_crt,pwm_crt);
 	turatie_crt = 0;

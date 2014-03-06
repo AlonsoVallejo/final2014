@@ -35,7 +35,7 @@ void test(char cmd)
 		turatie_ref = 5;
 		break;
 	case '2':
-		turatie_ref = 20;
+		turatie_ref = 10;
 		break;
 	case '3':
 		turatie_ref = 25;

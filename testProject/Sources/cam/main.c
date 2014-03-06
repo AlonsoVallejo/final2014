@@ -59,8 +59,8 @@ unsigned char turatie_crt = 0;
 int pwm_crt=0;
 unsigned char turatie_ref=0;
 extern unsigned char velocity_state;
-
-
+unsigned char old_turatie_crt =0;
+extern unsigned char config;
 
 double PID(int servo);
 double P(double x);
@@ -70,6 +70,7 @@ double D();
 extern int need_brake;
 extern int frincu;
 char braking_persist = 0;
+extern const unsigned char scenarios[3][3];
 
 extern void update_track_info();
 
@@ -121,7 +122,7 @@ void main(void) {
 				SET_DUTY_LEFT(0);
 				SET_DUTY_RIGHT(0);
 				disable_motors();
-				turatie_ref = 10;
+				turatie_ref = scenarios[config][ACCL_INDEX];
 				velocity_state = BRAKE_STAGE1;
 				break;
 			case BRAKE_STAGE1:
@@ -130,7 +131,7 @@ void main(void) {
 				SET_DUTY_LEFT(20);
 				SET_DUTY_RIGHT(20);
 				braking_persist++;
-				if(braking_persist == 7)//To Do: dependent de viteza
+				if(braking_persist == scenarios[config][BRK_INDEX])//To Do: dependent de viteza
 				{
 					velocity_state = BRAKE_STAGE2;
 					braking_persist = 0;
@@ -142,8 +143,6 @@ void main(void) {
 				enable_motors();
 				M0VE_FORWARD();
 				velocity_state = ACCELERATE;
-				
-				
 				break;
 			}
 			frincu=0;

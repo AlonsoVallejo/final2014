@@ -21,6 +21,10 @@
 #define LED2_ON GPIOA_PSOR |= LED2_MASK
 #define LED2_OFF GPIOA_PCOR |= LED2_MASK
 
+#define CONF(i) {switch(i){case 0 : LED3_ON;LED4_ON;break; case 1:LED3_OFF;LED4_OFF;break; case 2 : LED3_ON;LED4_OFF;break; }} //TO DO add forth mode
+
+
+
 #define LED3_TOGGLE GPIOA_PTOR |= LED3_MASK
 #define LED3_ON GPIOA_PSOR |= LED3_MASK
 #define LED3_OFF GPIOA_PCOR |= LED3_MASK

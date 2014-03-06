@@ -4,6 +4,8 @@
 #include "uart.h"
 #include "gpio.h"
 extern unsigned char turatie_crt;
+extern int config ; 
+unsigned char pushed;
 
 void init_uart()
 {
@@ -27,21 +29,36 @@ void init_gpio() {
 	PORTA_PCR29 = PORT_PCR_MUX(1);
 	PORTA_PCR10 = PORT_PCR_MUX(1);
 		
+	//sw1 enable
+	PORTA_PCR19 = PORT_PCR_MUX(1) | PORT_PCR_PE_MASK | PORT_PCR_PS_MASK;//Enable SW1
+	PORTA_PCR19 |= PORT_PCR_IRQC(0x9);
+	GPIOA_PDDR = 0x00;
+	
+	
 	// Setup outputs/inputs
 	GPIOA_PDDR = 0x30000C00;
 	GPIOA_PSOR = 0x30000C00;
 
+	//velocity sensor enable
 	PORTA_PCR16 = PORT_PCR_MUX(1) | PORT_PCR_PE_MASK | PORT_PCR_PS_MASK | PORT_PCR_IRQC(0xa);
 	enable_irq(87);
 }
 
-
 void senzor_turatie(void)
 {
-	//io_printf("NR!\n");
-	turatie_crt++;
-	PORTA_ISFR = (1 << 16);
-	LED1_TOGGLE;
+	pushed = ((PORTA_ISFR & (1<<19))>>19);
+	if(pushed)
+	{
+		config = (config+1)%3;
+		CONF(config);
+		PORTA_ISFR = (1 << 19);
+	}
+	else
+	{
+		turatie_crt ++;
+		LED1_TOGGLE;
+		PORTA_ISFR = (1 << 16);
+	}
 }
 
 uint8 calibrate_adc1() {
